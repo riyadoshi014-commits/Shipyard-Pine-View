@@ -15,3 +15,7 @@ export function hasElevenLabsEnv(): boolean {
       process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID_EMPLOYEE,
   );
 }
+
+export function hasAnthropicEnv(): boolean {
+  return Boolean(process.env.ANTHROPIC_API_KEY);
+}

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { hasElevenLabsEnv, hasSupabaseEnv } from "@/lib/env";
+import { hasAnthropicEnv, hasElevenLabsEnv, hasSupabaseEnv } from "@/lib/env";
 import { SITE_URL } from "@/lib/sample";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardingClient } from "./onboarding-client";
@@ -33,8 +33,8 @@ export default async function OnboardingPage() {
         </div>
       </header>
       <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
-        {hasElevenLabsEnv() ? (
-          <OnboardingClient userId={userId} fullName={fullName} siteUrl={SITE_URL} />
+        {hasAnthropicEnv() ? (
+          <OnboardingClient userId={userId} fullName={fullName} siteUrl={SITE_URL} voiceAvailable={hasElevenLabsEnv()} />
         ) : (
           <div className="mx-auto max-w-3xl">
             <OnboardingDemo />
