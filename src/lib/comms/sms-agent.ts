@@ -41,12 +41,14 @@ export async function generateSmsReply(
   const historyText = history.map((h) => `${h.role}: ${h.text}`).join("\n");
   const prompt = historyText ? `${historyText}\nuser: ${inboundText}` : `user: ${inboundText}`;
 
+  // No `thinking`/`output_config.effort` here: Haiku 4.5 is in the older-model
+  // tier that doesn't support adaptive thinking (only the enabled+budget_tokens
+  // form, and only if explicitly requested) and `effort` errors on this model.
+  // A short SMS reply doesn't need extended reasoning anyway.
   const response = await getClient().messages.create({
     model: "claude-haiku-4-5",
     max_tokens: 200,
     system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
-    thinking: { type: "adaptive" },
-    output_config: { effort: "low" },
     messages: [{ role: "user", content: prompt }],
   });
 

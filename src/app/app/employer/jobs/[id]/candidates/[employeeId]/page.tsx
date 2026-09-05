@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Check, Minus } from "lucide-react";
 import { BreakdownList } from "@/components/match/breakdown-list";
 import { FeedbackButtons } from "@/components/match/feedback-buttons";
+import { InterviewCopilot } from "@/components/match/interview-copilot";
 import { MatchRing } from "@/components/match/match-ring";
 import { PageHeader } from "@/components/page-header";
 import { PassportCard } from "@/components/passport/passport-card";
@@ -91,6 +92,7 @@ export default async function CandidatePage({ params }: { params: Promise<{ id: 
             </CardContent>
           </Card>
           <FeedbackButtons matchId={match.matchId} current={match.myFeedback} back={`${back}/${match.employeeId}`} vertical />
+          <InterviewCopilot jobId={j.id} />
           {match.passportPublic && match.passportSlug && (
             <Button variant="outline" render={<Link href={`/p/${match.passportSlug}`} />}>
               Open their public Passport

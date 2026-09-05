@@ -1,6 +1,7 @@
 import { PageHeader } from "@/components/page-header";
 import { EmployeeProfileForm } from "@/components/profile/employee-profile-form";
 import { HistoryEditor } from "@/components/profile/history-editor";
+import { ResumeImport } from "@/components/profile/resume-import";
 import { requireRole } from "@/lib/data/profile";
 import type { EmployeePrivate, EmployeeProfile } from "@/lib/domain";
 import { createClient } from "@/lib/supabase/server";
@@ -23,6 +24,7 @@ export default async function ProfilePage() {
     <div className="mx-auto max-w-2xl">
       <PageHeader title="Edit your profile" description="Everything here goes on your Ability Passport, except pay." />
       <div className="flex flex-col gap-12">
+        <ResumeImport />
         <EmployeeProfileForm profile={p} priv={(priv as EmployeePrivate | null) ?? null} />
         <HistoryEditor awards={p?.awards ?? []} education={p?.education ?? []} volunteer={p?.volunteer ?? []} />
       </div>
