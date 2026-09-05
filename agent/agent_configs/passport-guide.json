@@ -5,9 +5,19 @@
       "quality": "high",
       "provider": "scribe_realtime",
       "user_input_audio_format": "pcm_16000",
-      "keywords": ["ConnectAble", "Passport", "accommodations", "abilities", "Sarasota"]
+      "keywords": [
+        "ConnectAble",
+        "Passport",
+        "accommodations",
+        "abilities",
+        "Sarasota"
+      ]
     },
-    "turn": { "turn_timeout": 10.0, "silence_end_call_timeout": -1.0, "mode": "turn" },
+    "turn": {
+      "turn_timeout": 10,
+      "silence_end_call_timeout": -1,
+      "mode": "turn"
+    },
     "tts": {
       "model_id": "eleven_flash_v2",
       "voice_id": "cjVigY5qzO86Huf0OWal",
@@ -19,7 +29,14 @@
       "similarity_boost": 0.8,
       "pronunciation_dictionary_locators": []
     },
-    "conversation": { "text_only": false, "max_duration_seconds": 1500, "client_events": ["audio", "interruption"] },
+    "conversation": {
+      "text_only": false,
+      "max_duration_seconds": 1500,
+      "client_events": [
+        "audio",
+        "interruption"
+      ]
+    },
     "language_presets": {},
     "agent": {
       "first_message": "Hi {{user_first_name}}! I'm your Passport Guide. I'll ask a few easy questions and build your Ability Passport as we go. You can talk or type, and you can stop any time. Ready?",
@@ -36,7 +53,17 @@
         "llm": "gemini-2.5-flash",
         "temperature": 0.4,
         "max_tokens": -1,
-        "tool_ids": [],
+        "tool_ids": [
+          "tool_6901m1snry4zefxamm1tdpa39hte",
+          "tool_7701m1snryagfgxb37a7msj86gnc",
+          "tool_7001m1snryfzfadr5wg8e63kb2fy",
+          "tool_0801m1snrynben2tj8zj8n1t37bq",
+          "tool_1801m1snrytqf31vw8j61qmarbdd",
+          "tool_9101m1snryzxeassta9nbfxqj89p",
+          "tool_9601m1snrz54f5s87tecaaf6czb3",
+          "tool_5701m1snrzaaee9tm3hmqqcjjxft",
+          "tool_3301m1snrzfjf5s9wrng2m4f9gn0"
+        ],
         "mcp_server_ids": [],
         "native_mcp_server_ids": [],
         "knowledge_base": [],
@@ -49,22 +76,42 @@
     "auth": {
       "enable_auth": true,
       "allowlist": [
-        { "hostname": "localhost:3000" },
-        { "hostname": "connectable-eight.vercel.app" },
-        { "hostname": "connectable.work" }
+        {
+          "hostname": "localhost:3000"
+        },
+        {
+          "hostname": "connectable-eight.vercel.app"
+        },
+        {
+          "hostname": "connectable.work"
+        }
       ],
       "shareable_token": null
     },
     "overrides": {
       "conversation_config_override": {
-        "tts": { "voice_id": false },
-        "conversation": { "text_only": true },
-        "agent": { "first_message": false, "language": false, "prompt": { "prompt": false } }
+        "tts": {
+          "voice_id": false
+        },
+        "conversation": {
+          "text_only": true
+        },
+        "agent": {
+          "first_message": false,
+          "language": false,
+          "prompt": {
+            "prompt": false
+          }
+        }
       },
       "custom_llm_extra_body": false,
       "enable_conversation_initiation_client_data_from_webhook": false
     },
-    "call_limits": { "agent_concurrency_limit": -1, "daily_limit": 500, "bursting_enabled": true },
+    "call_limits": {
+      "agent_concurrency_limit": -1,
+      "daily_limit": 500,
+      "bursting_enabled": true
+    },
     "privacy": {
       "record_voice": false,
       "retention_days": 30,
@@ -73,8 +120,16 @@
       "apply_to_existing_conversations": false,
       "zero_retention_mode": false
     },
-    "safety": { "is_blocked_ivc": false, "is_blocked_non_ivc": false, "ignore_safety_evaluation": false },
-    "testing": { "attached_tests": [] }
+    "safety": {
+      "is_blocked_ivc": false,
+      "is_blocked_non_ivc": false,
+      "ignore_safety_evaluation": false
+    },
+    "testing": {
+      "attached_tests": []
+    }
   },
-  "tags": ["connectable"]
+  "tags": [
+    "connectable"
+  ]
 }

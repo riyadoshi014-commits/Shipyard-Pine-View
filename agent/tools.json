@@ -1,13 +1,49 @@
 {
-  "tools": [
-    { "type": "client", "config": "tool_configs/get_profile_status.json" },
-    { "type": "client", "config": "tool_configs/save_basics.json" },
-    { "type": "client", "config": "tool_configs/save_abilities.json" },
-    { "type": "client", "config": "tool_configs/save_accommodations.json" },
-    { "type": "client", "config": "tool_configs/save_availability.json" },
-    { "type": "client", "config": "tool_configs/save_story.json" },
-    { "type": "client", "config": "tool_configs/add_history.json" },
-    { "type": "client", "config": "tool_configs/save_salary.json" },
-    { "type": "client", "config": "tool_configs/finish_onboarding.json" }
-  ]
+    "tools": [
+        {
+            "type": "client",
+            "config": "tool_configs/get_profile_status.json",
+            "id": "tool_6901m1snry4zefxamm1tdpa39hte"
+        },
+        {
+            "type": "client",
+            "config": "tool_configs/save_basics.json",
+            "id": "tool_7701m1snryagfgxb37a7msj86gnc"
+        },
+        {
+            "type": "client",
+            "config": "tool_configs/save_abilities.json",
+            "id": "tool_7001m1snryfzfadr5wg8e63kb2fy"
+        },
+        {
+            "type": "client",
+            "config": "tool_configs/save_accommodations.json",
+            "id": "tool_0801m1snrynben2tj8zj8n1t37bq"
+        },
+        {
+            "type": "client",
+            "config": "tool_configs/save_availability.json",
+            "id": "tool_1801m1snrytqf31vw8j61qmarbdd"
+        },
+        {
+            "type": "client",
+            "config": "tool_configs/save_story.json",
+            "id": "tool_9101m1snryzxeassta9nbfxqj89p"
+        },
+        {
+            "type": "client",
+            "config": "tool_configs/add_history.json",
+            "id": "tool_9601m1snrz54f5s87tecaaf6czb3"
+        },
+        {
+            "type": "client",
+            "config": "tool_configs/save_salary.json",
+            "id": "tool_5701m1snrzaaee9tm3hmqqcjjxft"
+        },
+        {
+            "type": "client",
+            "config": "tool_configs/finish_onboarding.json",
+            "id": "tool_3301m1snrzfjf5s9wrng2m4f9gn0"
+        }
+    ]
 }
