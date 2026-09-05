@@ -1,15 +1,27 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { PassportCard } from "@/components/passport/passport-card";
 import { PassportShare } from "@/components/passport/passport-qr";
 import { Button } from "@/components/ui/button";
-import { ME, OTHER_EMPLOYEES, SITE_URL } from "@/lib/sample";
+import { getPublicPassport } from "@/lib/data/passport";
+import { SITE_URL } from "@/lib/sample";
 
-export const metadata = { title: "Ability Passport" };
+type Params = { params: Promise<{ slug: string }> };
 
-export default async function PassportPage({ params }: { params: Promise<{ slug: string }> }) {
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
-  const person = [ME, ...OTHER_EMPLOYEES].find((p) => p.slug === slug) ?? ME;
-  const url = `${SITE_URL}/p/${person.slug}`;
+  const passport = await getPublicPassport(slug);
+  if (!passport) return { title: "Ability Passport" };
+  const title = `${passport.fullName}'s Ability Passport`;
+  return { title, description: passport.headline, openGraph: { title, description: passport.headline } };
+}
+
+export default async function PassportPage({ params }: Params) {
+  const { slug } = await params;
+  const passport = await getPublicPassport(slug);
+  if (!passport) notFound();
+  const url = `${SITE_URL}/p/${slug}`;
 
   return (
     <>
@@ -24,7 +36,7 @@ export default async function PassportPage({ params }: { params: Promise<{ slug:
         </div>
       </header>
       <main id="main" className="mx-auto grid w-full max-w-4xl gap-8 px-6 py-8 md:grid-cols-[1fr_auto]">
-        <PassportCard person={person} />
+        <PassportCard person={passport} />
         <PassportShare url={url} />
       </main>
     </>

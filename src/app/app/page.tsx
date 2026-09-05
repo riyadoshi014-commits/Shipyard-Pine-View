@@ -1,52 +1,78 @@
 import Link from "next/link";
-import { AppShell } from "@/components/app-shell";
+import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
-import { MatchRing } from "@/components/match/match-ring";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MATCHES, ME } from "@/lib/sample";
+import { summarizeStatus } from "@/lib/agent/profile-status";
+import { requireProfile } from "@/lib/data/profile";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Home" };
 
-export default function DashboardPage() {
-  const mine = MATCHES.filter((m) => m.employee.id === ME.id);
-  const interested = mine.filter((m) => m.employerFeedback === "interested");
+export default async function DashboardPage() {
+  const profile = await requireProfile();
+  if (profile.role === "employer") redirect("/app/employer");
+  const supabase = await createClient();
+  const first = profile.fullName.split(" ")[0] || "there";
+
+  if (profile.role === "employee") {
+    const [{ data: ep }, { data: priv }, { count }] = await Promise.all([
+      supabase
+        .from("employee_profiles")
+        .select("headline, city, about, abilities, accommodations, availability, awards, education, volunteer, passport_public")
+        .eq("user_id", profile.userId)
+        .maybeSingle(),
+      supabase.from("employee_private").select("salary_min").eq("user_id", profile.userId).maybeSingle(),
+      supabase.from("matches").select("id", { count: "exact", head: true }).eq("employee_id", profile.userId),
+    ]);
+    const status = summarizeStatus(ep, priv);
+    return (
+      <>
+        <PageHeader title={`Hi ${first}`} description="Here is where you are." />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Ability Passport</CardTitle>
+              <CardDescription>{ep?.passport_public ? "Live. Anyone with the link can see it." : status}</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-2">
+              {ep?.passport_public ? (
+                <Button render={<Link href="/app/passport" />}>See my Passport</Button>
+              ) : (
+                <Button render={<Link href="/onboarding" />}>Build it with the guide</Button>
+              )}
+              <Button variant="outline" render={<Link href="/app/profile" />}>
+                Edit by hand
+              </Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Matches</CardTitle>
+              <CardDescription>
+                {count ? `${count} job${count === 1 ? "" : "s"} could be a fit.` : "Publish your Passport to start matching."}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" render={<Link href="/app/matches" />}>
+                See matches
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </>
+    );
+  }
 
   return (
-    <AppShell persona="employee">
-      <PageHeader title={`Hi ${ME.fullName.split(" ")[0]}`} description="Here is where you are." />
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Your Ability Passport</CardTitle>
-            <CardDescription>Live. Anyone with the link or QR code can see it.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            <Button render={<Link href="/app/passport" />}>See my Passport</Button>
-            <Button variant="outline" render={<Link href="/app/profile" />}>
-              Edit by hand
-            </Button>
-            <Button variant="outline" render={<Link href="/onboarding" />}>
-              Talk to the guide
-            </Button>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Matches</CardTitle>
-            <CardDescription>
-              {mine.length} employer{mine.length === 1 ? "" : "s"} could be a fit.
-              {interested.length > 0 && ` ${interested.length} already said they're interested.`}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex items-center justify-between gap-4">
-            <Button variant="outline" render={<Link href="/app/matches" />}>
-              See matches
-            </Button>
-            {mine[0] && <MatchRing score={mine[0].score} size={64} />}
-          </CardContent>
-        </Card>
-      </div>
-    </AppShell>
+    <>
+      <PageHeader title={`Hi ${first}`} description="Thank you for mentoring." />
+      <Card>
+        <CardHeader>
+          <CardTitle>Mentor tools are coming next</CardTitle>
+          <CardDescription>Soon you will see your mentees here and help keep their Passports up to date.</CardDescription>
+        </CardHeader>
+      </Card>
+    </>
   );
 }

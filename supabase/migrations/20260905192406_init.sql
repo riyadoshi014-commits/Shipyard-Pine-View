@@ -43,16 +43,6 @@ create policy "profiles: authenticated can read everyone"
   to authenticated
   using (true);
 
-create policy "profiles: anon can read owners of public passports"
-  on public.profiles for select
-  to anon
-  using (
-    exists (
-      select 1 from public.employee_profiles ep
-      where ep.user_id = profiles.id and ep.passport_public
-    )
-  );
-
 create policy "profiles: owner can update"
   on public.profiles for update
   to authenticated
@@ -114,18 +104,6 @@ create policy "employee_profiles: employers can read searchable"
     )
   );
 
-create policy "employee_profiles: active mentor can read"
-  on public.employee_profiles for select
-  to authenticated
-  using (
-    exists (
-      select 1 from public.mentorships m
-      where m.mentor_id = (select auth.uid())
-        and m.employee_id = employee_profiles.user_id
-        and m.status = 'active'
-    )
-  );
-
 create policy "employee_profiles: anon can read public passports"
   on public.employee_profiles for select
   to anon
@@ -141,26 +119,6 @@ create policy "employee_profiles: owner can update"
   to authenticated
   using ((select auth.uid()) = user_id)
   with check ((select auth.uid()) = user_id);
-
-create policy "employee_profiles: active mentor can update"
-  on public.employee_profiles for update
-  to authenticated
-  using (
-    exists (
-      select 1 from public.mentorships m
-      where m.mentor_id = (select auth.uid())
-        and m.employee_id = employee_profiles.user_id
-        and m.status = 'active'
-    )
-  )
-  with check (
-    exists (
-      select 1 from public.mentorships m
-      where m.mentor_id = (select auth.uid())
-        and m.employee_id = employee_profiles.user_id
-        and m.status = 'active'
-    )
-  );
 
 create trigger employee_profiles_set_updated_at
   before update on public.employee_profiles
@@ -198,18 +156,6 @@ create policy "employee_private: owner can update"
   to authenticated
   using ((select auth.uid()) = user_id)
   with check ((select auth.uid()) = user_id);
-
-create policy "employee_private: active mentor can read"
-  on public.employee_private for select
-  to authenticated
-  using (
-    exists (
-      select 1 from public.mentorships m
-      where m.mentor_id = (select auth.uid())
-        and m.employee_id = employee_private.user_id
-        and m.status = 'active'
-    )
-  );
 
 create trigger employee_private_set_updated_at
   before update on public.employee_private
@@ -610,3 +556,61 @@ create policy "storage: anyone can read avatars"
   on storage.objects for select
   to anon, authenticated
   using (bucket_id = 'avatars');
+
+-- ---------------------------------------------------------------------------
+-- Policies that reference tables created later in this file. Postgres checks
+-- policy expressions at creation time, so they must come after every table.
+-- ---------------------------------------------------------------------------
+create policy "profiles: anon can read owners of public passports"
+  on public.profiles for select
+  to anon
+  using (
+    exists (
+      select 1 from public.employee_profiles ep
+      where ep.user_id = profiles.id and ep.passport_public
+    )
+  );
+
+create policy "employee_profiles: active mentor can read"
+  on public.employee_profiles for select
+  to authenticated
+  using (
+    exists (
+      select 1 from public.mentorships m
+      where m.mentor_id = (select auth.uid())
+        and m.employee_id = employee_profiles.user_id
+        and m.status = 'active'
+    )
+  );
+
+create policy "employee_profiles: active mentor can update"
+  on public.employee_profiles for update
+  to authenticated
+  using (
+    exists (
+      select 1 from public.mentorships m
+      where m.mentor_id = (select auth.uid())
+        and m.employee_id = employee_profiles.user_id
+        and m.status = 'active'
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.mentorships m
+      where m.mentor_id = (select auth.uid())
+        and m.employee_id = employee_profiles.user_id
+        and m.status = 'active'
+    )
+  );
+
+create policy "employee_private: active mentor can read"
+  on public.employee_private for select
+  to authenticated
+  using (
+    exists (
+      select 1 from public.mentorships m
+      where m.mentor_id = (select auth.uid())
+        and m.employee_id = employee_private.user_id
+        and m.status = 'active'
+    )
+  );
