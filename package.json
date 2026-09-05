@@ -15,7 +15,8 @@
     "db:types": "supabase gen types typescript --linked --schema public > src/lib/supabase/database.types.ts",
     "agent": "node scripts/agent.mjs",
     "agent:push": "node scripts/agent.mjs push",
-    "agent:status": "node scripts/agent.mjs status"
+    "agent:status": "node scripts/agent.mjs status",
+    "seed": "node --env-file=.env.local --experimental-strip-types scripts/seed.mts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.124.0",
