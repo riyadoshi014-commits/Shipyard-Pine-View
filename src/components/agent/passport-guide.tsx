@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ConversationProvider, useConversation } from "@elevenlabs/react";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -164,11 +164,34 @@ function GuideSession({
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [starting, setStarting] = useState(false);
+  // Text mode streams replies in parts; voice mode delivers whole messages.
+  const streamed = useRef("");
+  const lastStreamed = useRef("");
+
+  const addGuideLine = (text: string) => {
+    const clean = text.trim();
+    if (!clean) return;
+    setLines((l) => [...l, { id: crypto.randomUUID(), who: "guide", text: clean }]);
+  };
 
   const conversation = useConversation({
+    onAgentChatResponsePart: (part) => {
+      if (part.type === "start") streamed.current = "";
+      if (part.type === "delta") streamed.current += part.text ?? "";
+      if (part.type === "stop") {
+        lastStreamed.current = streamed.current.trim();
+        addGuideLine(streamed.current);
+        streamed.current = "";
+      }
+    },
     onMessage: ({ message, role }) => {
-      if (mode === "text" && role === "user") return; // typed lines are added locally
-      setLines((l) => [...l, { id: crypto.randomUUID(), who: role === "user" ? "you" : "guide", text: message }]);
+      if (role === "user") {
+        if (mode === "text") return; // typed lines are added locally
+        setLines((l) => [...l, { id: crypto.randomUUID(), who: "you", text: message }]);
+        return;
+      }
+      if (message.trim() === lastStreamed.current) return; // already shown from the stream
+      addGuideLine(message);
     },
     onError: (message) => setError(message),
     onDisconnect: (details) => {
