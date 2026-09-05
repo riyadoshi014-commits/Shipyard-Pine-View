@@ -5,9 +5,9 @@ import { toast } from "sonner";
 import { ChipPicker } from "@/components/chip-picker";
 import { Field, fieldAria } from "@/components/form/field";
 import { NativeSelect } from "@/components/form/native-select";
+import { AboutTranslator } from "@/components/profile/about-translator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import type { FormState } from "@/lib/auth/schemas";
 import type { EmployeePrivate, EmployeeProfile } from "@/lib/domain";
 import { saveEmployeeProfile } from "@/lib/profile/actions";
@@ -69,12 +69,12 @@ export function EmployeeProfileForm({ profile, priv }: Props) {
 
       <section className="flex flex-col gap-4">
         <h2 className="text-xl font-bold">Your story</h2>
-        <Field id="about_raw" label="In your own words" hint="A time you did a good job at something." error={e.about_raw}>
-          <Textarea id="about_raw" name="about_raw" rows={4} defaultValue={profile?.about_raw ?? ""} {...fieldAria("about_raw", { hint: true, error: e.about_raw })} />
-        </Field>
-        <Field id="about" label="Professional version" hint="This is what employers read. The guide can write it for you." error={e.about}>
-          <Textarea id="about" name="about" rows={4} defaultValue={profile?.about ?? ""} {...fieldAria("about", { hint: true, error: e.about })} />
-        </Field>
+        <AboutTranslator
+          initialRaw={profile?.about_raw ?? ""}
+          initialAbout={profile?.about ?? ""}
+          rawError={e.about_raw}
+          aboutError={e.about}
+        />
       </section>
 
       <section className="flex flex-col gap-4">
