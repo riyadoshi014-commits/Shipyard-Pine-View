@@ -207,7 +207,8 @@ export const MATCHES: SampleMatch[] = JOBS.flatMap((job) =>
   }),
 ).sort((a, b) => b.score - a.score);
 
-export const SITE_URL = "https://connectable.vercel.app";
+// Switch to https://connectable.work once its DNS points at Vercel.
+export const SITE_URL = "https://connectable-eight.vercel.app";
 
 export const REMOTE_LABEL: Record<RemotePreference, string> = {
   remote: "Remote",
