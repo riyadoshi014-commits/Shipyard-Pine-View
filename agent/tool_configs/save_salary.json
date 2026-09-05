@@ -1,0 +1,17 @@
+{
+  "name": "save_salary",
+  "description": "Save the hourly pay range that feels fair to the user. This is private and never shown to employers.",
+  "type": "client",
+  "expects_response": true,
+  "response_timeout_secs": 30,
+  "parameters": {
+    "type": "object",
+    "description": "Hourly pay range in US dollars.",
+    "properties": {
+      "salary_min": { "type": "number", "description": "Lowest hourly pay in US dollars." },
+      "salary_max": { "type": "number", "description": "Highest hourly pay in US dollars. Equal to salary_min if they gave one number." }
+    },
+    "required": ["salary_min", "salary_max"]
+  },
+  "dynamic_variables": { "dynamic_variable_placeholders": {} }
+}

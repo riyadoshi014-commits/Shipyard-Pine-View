@@ -12,7 +12,10 @@
     "test:watch": "vitest",
     "supabase": "supabase",
     "db:push": "supabase db push",
-    "db:types": "supabase gen types typescript --linked --schema public > src/lib/supabase/database.types.ts"
+    "db:types": "supabase gen types typescript --linked --schema public > src/lib/supabase/database.types.ts",
+    "agent": "node scripts/agent.mjs",
+    "agent:push": "node scripts/agent.mjs push",
+    "agent:status": "node scripts/agent.mjs status"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.124.0",
@@ -35,6 +38,7 @@
     "zod": "^4.5.4"
   },
   "devDependencies": {
+    "@elevenlabs/cli": "1.1.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",

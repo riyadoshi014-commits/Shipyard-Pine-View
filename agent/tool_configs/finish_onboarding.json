@@ -1,0 +1,14 @@
+{
+  "name": "finish_onboarding",
+  "description": "Publish the Ability Passport and make the user visible to employers. Returns the public link to read to the user.",
+  "type": "client",
+  "expects_response": true,
+  "response_timeout_secs": 30,
+  "parameters": {
+    "type": "object",
+    "description": "No parameters.",
+    "properties": {},
+    "required": []
+  },
+  "dynamic_variables": { "dynamic_variable_placeholders": {} }
+}

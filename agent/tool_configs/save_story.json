@@ -1,0 +1,17 @@
+{
+  "name": "save_story",
+  "description": "Save the user's story in their own words plus your professional rewrite. Only call after reading the rewrite back and getting a yes.",
+  "type": "client",
+  "expects_response": true,
+  "response_timeout_secs": 30,
+  "parameters": {
+    "type": "object",
+    "description": "Their story, two versions.",
+    "properties": {
+      "about_raw": { "type": "string", "description": "Their story in their own words, lightly cleaned up." },
+      "about": { "type": "string", "description": "Your professional two-sentence version that they approved." }
+    },
+    "required": ["about_raw", "about"]
+  },
+  "dynamic_variables": { "dynamic_variable_placeholders": {} }
+}

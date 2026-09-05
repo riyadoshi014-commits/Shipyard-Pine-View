@@ -1,0 +1,20 @@
+{
+  "name": "add_history",
+  "description": "Add one award, education item, or volunteer experience.",
+  "type": "client",
+  "expects_response": true,
+  "response_timeout_secs": 30,
+  "parameters": {
+    "type": "object",
+    "description": "One history item.",
+    "properties": {
+      "kind": { "type": "string", "description": "One of: award, education, volunteer." },
+      "title": { "type": "string", "description": "Name of the award, program, school, or role." },
+      "org": { "type": "string", "description": "Organisation or school." },
+      "year": { "type": "string", "description": "Year or year range, e.g. \"2024\" or \"2022-2024\"." },
+      "details": { "type": "string", "description": "One sentence of detail." }
+    },
+    "required": ["kind", "title"]
+  },
+  "dynamic_variables": { "dynamic_variable_placeholders": {} }
+}

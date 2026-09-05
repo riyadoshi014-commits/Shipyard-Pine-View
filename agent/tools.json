@@ -1,0 +1,13 @@
+{
+  "tools": [
+    { "type": "client", "config": "tool_configs/get_profile_status.json" },
+    { "type": "client", "config": "tool_configs/save_basics.json" },
+    { "type": "client", "config": "tool_configs/save_abilities.json" },
+    { "type": "client", "config": "tool_configs/save_accommodations.json" },
+    { "type": "client", "config": "tool_configs/save_availability.json" },
+    { "type": "client", "config": "tool_configs/save_story.json" },
+    { "type": "client", "config": "tool_configs/add_history.json" },
+    { "type": "client", "config": "tool_configs/save_salary.json" },
+    { "type": "client", "config": "tool_configs/finish_onboarding.json" }
+  ]
+}

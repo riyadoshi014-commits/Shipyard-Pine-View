@@ -1,0 +1,19 @@
+{
+  "name": "save_basics",
+  "description": "Save the user's location, work preference and headline. Only pass the fields you learned.",
+  "type": "client",
+  "expects_response": true,
+  "response_timeout_secs": 30,
+  "parameters": {
+    "type": "object",
+    "description": "Basic profile fields. All optional.",
+    "properties": {
+      "headline": { "type": "string", "description": "One short line describing them at work, e.g. \"Friendly team member who loves organising\"." },
+      "city": { "type": "string", "description": "City they live in." },
+      "state": { "type": "string", "description": "Two-letter US state, e.g. FL." },
+      "remote_preference": { "type": "string", "description": "One of: remote, in_person, either." }
+    },
+    "required": []
+  },
+  "dynamic_variables": { "dynamic_variable_placeholders": {} }
+}

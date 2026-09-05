@@ -1,0 +1,16 @@
+{
+  "name": "save_abilities",
+  "description": "Replace the user's list of abilities.",
+  "type": "client",
+  "expects_response": true,
+  "response_timeout_secs": 30,
+  "parameters": {
+    "type": "object",
+    "description": "The abilities list.",
+    "properties": {
+      "abilities": { "type": "string", "description": "Comma-separated list of 3 to 8 short abilities, e.g. \"greeting customers, stocking shelves, following a checklist\"." }
+    },
+    "required": ["abilities"]
+  },
+  "dynamic_variables": { "dynamic_variable_placeholders": {} }
+}

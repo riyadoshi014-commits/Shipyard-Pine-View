@@ -1,0 +1,14 @@
+{
+  "name": "get_profile_status",
+  "description": "Returns what is already saved on the user's Ability Passport and what is still missing. Call this first and after every save.",
+  "type": "client",
+  "expects_response": true,
+  "response_timeout_secs": 30,
+  "parameters": {
+    "type": "object",
+    "description": "No parameters.",
+    "properties": {},
+    "required": []
+  },
+  "dynamic_variables": { "dynamic_variable_placeholders": {} }
+}

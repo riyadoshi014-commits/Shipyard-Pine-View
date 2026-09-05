@@ -1,0 +1,16 @@
+{
+  "name": "save_accommodations",
+  "description": "Replace the user's list of accommodations that help them do their best work.",
+  "type": "client",
+  "expects_response": true,
+  "response_timeout_secs": 30,
+  "parameters": {
+    "type": "object",
+    "description": "The accommodations list.",
+    "properties": {
+      "accommodations": { "type": "string", "description": "Comma-separated list, e.g. \"written instructions, quiet workspace, regular schedule\". Use \"none listed yet\" if they have none." }
+    },
+    "required": ["accommodations"]
+  },
+  "dynamic_variables": { "dynamic_variable_placeholders": {} }
+}

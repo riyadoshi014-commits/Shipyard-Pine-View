@@ -1,0 +1,16 @@
+{
+  "name": "save_availability",
+  "description": "Replace the user's availability.",
+  "type": "client",
+  "expects_response": true,
+  "response_timeout_secs": 30,
+  "parameters": {
+    "type": "object",
+    "description": "When they can work.",
+    "properties": {
+      "availability": { "type": "string", "description": "Comma-separated list of days or times, e.g. \"weekday mornings, Saturdays\"." }
+    },
+    "required": ["availability"]
+  },
+  "dynamic_variables": { "dynamic_variable_placeholders": {} }
+}
