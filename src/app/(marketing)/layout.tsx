@@ -16,8 +16,13 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
         {children}
       </main>
       <footer className="mt-auto border-t bg-muted">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-8 text-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-8 text-sm lg:flex-row lg:items-start lg:justify-between">
           <p className="font-bold">ConnectAble · an Inclusion Revolution project</p>
+          <address className="flex shrink-0 flex-col not-italic" aria-label="Company contact information">
+            <span className="mb-1 font-bold">Get in touch</span>
+            <a href="tel:+19412394045" className="inline-flex min-h-11 items-center underline-offset-4 hover:underline">+1 941-239-4045</a>
+            <a href="mailto:info@connectable.work" className="inline-flex min-h-11 items-center underline-offset-4 hover:underline">info@connectable.work</a>
+          </address>
           <nav aria-label="Footer">
             <ul className="flex flex-wrap gap-4">
               {LINKS.map((l) => (
