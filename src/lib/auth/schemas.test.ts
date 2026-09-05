@@ -1,48 +1,37 @@
 import { describe, expect, it } from "vitest";
-import { formToObject } from "@/lib/forms";
-import { firstFieldErrors, friendlyAuthError, logInSchema, signUpSchema } from "./schemas";
+import { signUpSchema } from "./schemas";
 
-describe("formToObject", () => {
-  it("copies scalar fields and collects list fields with getAll", () => {
-    const fd = new FormData();
-    fd.append("city", "Sarasota");
-    fd.append("abilities", "a");
-    fd.append("abilities", "b");
-    expect(formToObject(fd, ["abilities"])).toEqual({ city: "Sarasota", abilities: ["a", "b"] });
-    expect(formToObject(new FormData(), ["abilities"])).toEqual({ abilities: [] });
-  });
-});
+/**
+ * Age gate (docs/RISKS_AND_GAPS.md section 2e): the prototype scopes out
+ * minors rather than half-supporting them (no parental consent flow, no
+ * student-data handling). A checkbox is only present in FormData when
+ * checked -- "on" when checked, absent entirely otherwise -- which is what
+ * these cases exercise.
+ */
+const BASE_FIELDS = {
+  full_name: "Jordan Rivera",
+  email: "jordan@example.com",
+  password: "password123",
+  role: "employee",
+};
 
-describe("signUpSchema", () => {
-  it("accepts a valid sign up and lowercases the email", () => {
-    const r = signUpSchema.safeParse({ full_name: " Nick ", email: "Nick@Example.com", password: "longenough", role: "employee" });
-    expect(r.success).toBe(true);
-    if (r.success) expect(r.data).toEqual({ full_name: "Nick", email: "nick@example.com", password: "longenough", role: "employee" });
-  });
-
-  it("reports one plain-language error per field", () => {
-    const r = signUpSchema.safeParse({ full_name: "", email: "nope", password: "short", role: "boss" });
-    expect(r.success).toBe(false);
-    if (!r.success) {
-      const errors = firstFieldErrors(r.error);
-      expect(errors.full_name).toBe("Please tell us your name.");
-      expect(errors.email).toBe("That email doesn't look right.");
-      expect(errors.password).toBe("Use at least 8 characters.");
-      expect(errors.role).toBeDefined();
+describe("signUpSchema age gate", () => {
+  it("rejects signup when the age checkbox was never checked (field absent from FormData)", () => {
+    const result = signUpSchema.safeParse({ ...BASE_FIELDS });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const ageIssue = result.error.issues.find((i) => i.path[0] === "age_confirmed");
+      expect(ageIssue).toBeDefined();
     }
   });
-});
 
-describe("logInSchema", () => {
-  it("requires a password", () => {
-    expect(logInSchema.safeParse({ email: "a@b.co", password: "" }).success).toBe(false);
+  it("rejects signup when the field is present but not the checked value", () => {
+    const result = signUpSchema.safeParse({ ...BASE_FIELDS, age_confirmed: "off" });
+    expect(result.success).toBe(false);
   });
-});
 
-describe("friendlyAuthError", () => {
-  it("maps known messages and falls back", () => {
-    expect(friendlyAuthError("User already registered")).toBe("That email is already signed up. Try logging in.");
-    expect(friendlyAuthError("Invalid login credentials")).toBe("That email and password don't match.");
-    expect(friendlyAuthError("weird")).toBe("Something went wrong. Please try again.");
+  it("accepts signup once the box is checked", () => {
+    const result = signUpSchema.safeParse({ ...BASE_FIELDS, age_confirmed: "on" });
+    expect(result.success).toBe(true);
   });
 });

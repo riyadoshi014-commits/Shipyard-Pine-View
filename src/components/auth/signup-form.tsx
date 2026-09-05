@@ -47,6 +47,12 @@ export function SignupForm({ defaultRole }: { defaultRole?: string }) {
         <Input id="password" name="password" type="password" autoComplete="new-password" {...fieldAria("password", { hint: true, error: e.password })} />
       </Field>
 
+      <label className="flex cursor-pointer items-start gap-3 rounded-lg border p-4 has-[:checked]:border-green has-[:checked]:bg-green-soft">
+        <input type="checkbox" name="age_confirmed" className="mt-1 size-5 accent-green" />
+        <span>I confirm I am 18 years old or older.</span>
+      </label>
+      {e.age_confirmed && <p role="alert" className="text-sm font-bold text-destructive">{e.age_confirmed}</p>}
+
       {state.error && (
         <p role="alert" className="rounded-md bg-coral-soft p-3 font-bold text-coral-foreground">
           {state.error}
