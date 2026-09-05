@@ -42,4 +42,41 @@ describe("story playback", () => {
       expect(opener).toHaveFocus();
     }
   });
+
+  it("navigates story chapters with the keyboard and plays the chosen moment", () => {
+    const { container } = render(<StoryHome />);
+    const firstChapter = screen.getByRole("tab", { name: /The work/ });
+    firstChapter.focus();
+    fireEvent.keyDown(firstChapter, { key: "ArrowRight" });
+    const peopleChapter = screen.getByRole("tab", { name: /The people/ });
+    expect(peopleChapter).toHaveFocus();
+    expect(peopleChapter).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tabpanel")).toHaveAccessibleName(/The people/);
+    const opener = screen.getByRole("button", { name: /Watch this moment/ });
+    fireEvent.click(opener);
+    const video = container.querySelector("video")!;
+    fireEvent.loadedMetadata(video);
+    expect(video.currentTime).toBe(102);
+    expect(document.body.style.overflow).toBe("hidden");
+    fireEvent.click(screen.getByRole("button", { name: "Close video" }));
+    expect(document.body.style.overflow).not.toBe("hidden");
+    expect(opener).toHaveFocus();
+
+    // A subsequent full-story opening must start at the beginning.
+    fireEvent.click(screen.getByRole("button", { name: /Meet Nick/ }));
+    const fullFilm = container.querySelector("video")!;
+    fireEvent.loadedMetadata(fullFilm);
+    expect(fullFilm.currentTime).toBe(0);
+  });
+
+  it("dismisses mobile navigation with Escape and returns focus to its button", () => {
+    render(<StoryHome />);
+    const menu = screen.getByRole("button", { name: "Open menu" });
+    fireEvent.click(menu);
+    expect(screen.getByRole("navigation", { name: "Mobile navigation" })).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(screen.queryByRole("navigation", { name: "Mobile navigation" })).not.toBeInTheDocument();
+    expect(menu).toHaveAttribute("aria-expanded", "false");
+    expect(menu).toHaveFocus();
+  });
 });
