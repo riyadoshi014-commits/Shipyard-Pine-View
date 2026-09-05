@@ -1,0 +1,309 @@
+{
+  "model": "gemini-3.8-flash",
+  "requested_processing": "agentic",
+  "source_files": [
+    "Mr Shriver Input\\nick_video_720p.mp4",
+    "Mr Shriver Input\\IMG_0162.mp4",
+    "Mr Shriver Input\\IMG_1277.mp4"
+  ],
+  "trace_counts": {
+    "processing_call": 14,
+    "processing_result": 14,
+    "model_output": 1
+  },
+  "usage": {
+    "total_tokens": 145679,
+    "total_input_tokens": 4074,
+    "input_tokens_by_modality": [
+      {
+        "modality": "text",
+        "tokens": 4074
+      }
+    ],
+    "total_cached_tokens": 80794,
+    "cached_tokens_by_modality": [
+      {
+        "modality": "text",
+        "tokens": 13918
+      },
+      {
+        "modality": "image",
+        "tokens": 66876
+      }
+    ],
+    "total_output_tokens": 9158,
+    "total_tool_use_tokens": 124302,
+    "tool_use_tokens_by_modality": [
+      {
+        "modality": "text",
+        "tokens": 18042
+      },
+      {
+        "modality": "image",
+        "tokens": 106260
+      }
+    ],
+    "total_thought_tokens": 8145,
+    "raw_prompt_token": 26872,
+    "model_invocation_token_counts": [
+      {
+        "prompt_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 1103
+          }
+        ],
+        "candidates_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 85
+          }
+        ],
+        "thoughts_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 212
+          }
+        ]
+      },
+      {
+        "prompt_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 1481
+          }
+        ],
+        "candidates_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 157
+          }
+        ],
+        "thoughts_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 311
+          }
+        ]
+      },
+      {
+        "prompt_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 2228
+          },
+          {
+            "modality": "image",
+            "tokens": 6732
+          }
+        ],
+        "candidates_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 107
+          }
+        ],
+        "thoughts_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 117
+          }
+        ]
+      },
+      {
+        "prompt_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 2712
+          },
+          {
+            "modality": "image",
+            "tokens": 13662
+          }
+        ],
+        "candidates_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 57
+          }
+        ],
+        "thoughts_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 130
+          }
+        ]
+      },
+      {
+        "prompt_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 2960
+          },
+          {
+            "modality": "image",
+            "tokens": 14850
+          }
+        ],
+        "cache_tokens_details": [
+          {
+            "modality": "image",
+            "tokens": 12255
+          },
+          {
+            "modality": "text",
+            "tokens": 2960
+          }
+        ],
+        "candidates_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 98
+          }
+        ],
+        "thoughts_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 371
+          }
+        ]
+      },
+      {
+        "prompt_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 3561
+          },
+          {
+            "modality": "image",
+            "tokens": 17556
+          }
+        ],
+        "cache_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 3561
+          },
+          {
+            "modality": "image",
+            "tokens": 12311
+          }
+        ],
+        "candidates_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 57
+          }
+        ],
+        "thoughts_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 154
+          }
+        ]
+      },
+      {
+        "prompt_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 3809
+          },
+          {
+            "modality": "image",
+            "tokens": 17556
+          }
+        ],
+        "cache_tokens_details": [
+          {
+            "modality": "image",
+            "tokens": 15227
+          },
+          {
+            "modality": "text",
+            "tokens": 3809
+          }
+        ],
+        "candidates_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 53
+          }
+        ],
+        "thoughts_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 34
+          }
+        ]
+      },
+      {
+        "prompt_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 3923
+          },
+          {
+            "modality": "image",
+            "tokens": 17556
+          }
+        ],
+        "cache_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 3923
+          },
+          {
+            "modality": "image",
+            "tokens": 15124
+          }
+        ],
+        "candidates_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 54
+          }
+        ],
+        "thoughts_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 2098
+          }
+        ]
+      },
+      {
+        "prompt_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 6124
+          },
+          {
+            "modality": "image",
+            "tokens": 18348
+          }
+        ],
+        "cache_tokens_details": [
+          {
+            "modality": "image",
+            "tokens": 13983
+          },
+          {
+            "modality": "text",
+            "tokens": 6124
+          }
+        ],
+        "candidates_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 8554
+          }
+        ],
+        "thoughts_tokens_details": [
+          {
+            "modality": "text",
+            "tokens": 3306
+          }
+        ]
+      }
+    ]
+  }
+}
