@@ -18,7 +18,7 @@
 /* Header */
 .header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 5.5%; border-bottom: 1px solid var(--line); background: var(--paper); }
 .logoLink { display: inline-flex; --wordmark-size: 1.05rem; border-radius: 6px; }
-.headerCta { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px; background: var(--ink); color: #fff; font-size: .78rem; font-weight: 700; transition: background .2s; }
+.headerCta { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 13px; border-radius: 999px; background: var(--ink); color: #fff; font-size: .72rem; font-weight: 700; white-space: nowrap; transition: background .2s; }
 .headerCta:hover { background: #3d5a49; }
 
 /* Intro */
