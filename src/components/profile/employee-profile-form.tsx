@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ChipPicker } from "@/components/chip-picker";
 import { Field, fieldAria } from "@/components/form/field";
@@ -32,10 +32,26 @@ export function EmployeeProfileForm({ profile, priv, fullName }: Props) {
   const [state, action, pending] = useActionState(saveEmployeeProfile, initial);
   const e = state.fieldErrors ?? {};
 
-  // Chip lists aren't captured; every typed field (name, headline, city,
-  // state, where-you-work, story, pay) is.
+  // ChipPicker keeps its own internal state, so a restored draft can't just
+  // set the DOM -- it needs these lifted and re-seeded, the same trick
+  // job-form.tsx already uses for its AI-suggestion re-seeding.
+  const [abilitiesSeed, setAbilitiesSeed] = useState(profile?.abilities ?? []);
+  const [accommodationsSeed, setAccommodationsSeed] = useState(profile?.accommodations ?? []);
+  const [availabilitySeed, setAvailabilitySeed] = useState(profile?.availability ?? []);
+  const [seedVersion, setSeedVersion] = useState(0);
+
   const formRef = useRef<HTMLFormElement>(null);
-  const { clear: clearDraft } = useFormDraft({ key: "profile-employee", formRef });
+  const { clear: clearDraft } = useFormDraft({
+    key: "profile-employee",
+    formRef,
+    listFields: ["abilities", "accommodations", "availability"],
+    onRestore: (values) => {
+      if (Array.isArray(values.abilities)) setAbilitiesSeed(values.abilities);
+      if (Array.isArray(values.accommodations)) setAccommodationsSeed(values.accommodations);
+      if (Array.isArray(values.availability)) setAvailabilitySeed(values.availability);
+      setSeedVersion((v) => v + 1);
+    },
+  });
 
   useEffect(() => {
     if (state.success) {
@@ -79,9 +95,30 @@ export function EmployeeProfileForm({ profile, priv, fullName }: Props) {
         </fieldset>
       </section>
 
-      <ChipPicker name="abilities" label="Abilities" description="Things you are good at, at work or at home." suggestions={ABILITY_SUGGESTIONS} initial={profile?.abilities ?? []} />
-      <ChipPicker name="accommodations" label="Accommodations" description="What helps you do your best work." suggestions={ACCOMMODATION_SUGGESTIONS} initial={profile?.accommodations ?? []} />
-      <ChipPicker name="availability" label="Availability" description="When you can work." suggestions={AVAILABILITY_OPTIONS} initial={profile?.availability ?? []} />
+      <ChipPicker
+        key={`abilities-${seedVersion}`}
+        name="abilities"
+        label="Abilities"
+        description="Things you are good at, at work or at home."
+        suggestions={ABILITY_SUGGESTIONS}
+        initial={abilitiesSeed}
+      />
+      <ChipPicker
+        key={`accommodations-${seedVersion}`}
+        name="accommodations"
+        label="Accommodations"
+        description="What helps you do your best work."
+        suggestions={ACCOMMODATION_SUGGESTIONS}
+        initial={accommodationsSeed}
+      />
+      <ChipPicker
+        key={`availability-${seedVersion}`}
+        name="availability"
+        label="Availability"
+        description="When you can work."
+        suggestions={AVAILABILITY_OPTIONS}
+        initial={availabilitySeed}
+      />
 
       <section className="flex flex-col gap-4">
         <h2 className="text-xl font-bold">Your story</h2>

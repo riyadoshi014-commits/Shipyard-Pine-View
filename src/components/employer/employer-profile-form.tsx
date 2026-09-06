@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ChipPicker } from "@/components/chip-picker";
 import { Field, fieldAria } from "@/components/form/field";
@@ -20,9 +20,23 @@ export function EmployerProfileForm({ profile, fullName }: { profile: EmployerPr
   const [state, action, pending] = useActionState(saveEmployerProfile, initial);
   const e = state.fieldErrors ?? {};
 
-  // The accommodations chip list isn't captured; the typed fields are.
+  // ChipPicker keeps its own internal state, so a restored draft needs this
+  // lifted and re-seeded -- see employee-profile-form.tsx for the same trick.
+  const [accommodationsSeed, setAccommodationsSeed] = useState(profile?.accommodations_offered ?? []);
+  const [seedVersion, setSeedVersion] = useState(0);
+
   const formRef = useRef<HTMLFormElement>(null);
-  const { clear: clearDraft } = useFormDraft({ key: "profile-employer", formRef });
+  const { clear: clearDraft } = useFormDraft({
+    key: "profile-employer",
+    formRef,
+    listFields: ["accommodations_offered"],
+    onRestore: (values) => {
+      if (Array.isArray(values.accommodations_offered)) {
+        setAccommodationsSeed(values.accommodations_offered);
+        setSeedVersion((v) => v + 1);
+      }
+    },
+  });
 
   useEffect(() => {
     if (state.success) {
@@ -60,11 +74,12 @@ export function EmployerProfileForm({ profile, fullName }: { profile: EmployerPr
         </Field>
       </div>
       <ChipPicker
+        key={`accommodations-${seedVersion}`}
         name="accommodations_offered"
         label="Accommodations we can provide"
         description="Candidates are scored for these, never against them. They also become the default on new jobs."
         suggestions={ACCOMMODATION_SUGGESTIONS}
-        initial={profile?.accommodations_offered ?? []}
+        initial={accommodationsSeed}
       />
       {state.error && (
         <p role="alert" className="rounded-md bg-coral-soft p-3 font-bold text-coral-foreground">

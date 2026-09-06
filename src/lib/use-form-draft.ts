@@ -14,7 +14,9 @@ import { CONSENT_EVENT, hasDraftConsent } from "@/lib/consent";
  * Works with uncontrolled fields out of the box (it sets the DOM nodes and
  * fires a native input event so React's onChange sees it). Controlled forms
  * that keep their own state (chips, seeded inputs) pass `onRestore` to push
- * the restored values into their setters.
+ * the restored values into their setters -- list them in `listFields` too,
+ * so a selection of exactly one chip still comes back as a one-item array
+ * instead of a bare string.
  *
  * Password fields are never captured.
  */
@@ -28,6 +30,12 @@ type Options = {
   enabled?: boolean;
   /** Field names to never persist (password inputs are always skipped). */
   exclude?: string[];
+  /**
+   * Field names that are always a list (e.g. a ChipPicker's repeated hidden
+   * inputs) even when exactly one value is picked. Without this, a single
+   * selection would round-trip as a plain string instead of a one-item array.
+   */
+  listFields?: string[];
   /** Given the restored values, apply anything the DOM can't (controlled state). */
   onRestore?: (values: DraftValues) => void;
 };
@@ -66,7 +74,7 @@ function isSkippableField(el: Element, exclude: Set<string>): boolean {
   return false;
 }
 
-function snapshot(form: HTMLFormElement, exclude: Set<string>): DraftValues {
+function snapshot(form: HTMLFormElement, exclude: Set<string>, listFields: Set<string>): DraftValues {
   const data = new FormData(form);
   const out: DraftValues = {};
   for (const key of new Set(data.keys())) {
@@ -74,7 +82,7 @@ function snapshot(form: HTMLFormElement, exclude: Set<string>): DraftValues {
     const field = form.elements.namedItem(key);
     if (field instanceof HTMLInputElement && (field.type === "password" || field.type === "file")) continue;
     const all = data.getAll(key).map(String);
-    out[key] = all.length > 1 ? all : (all[0] ?? "");
+    out[key] = listFields.has(key) || all.length > 1 ? all : (all[0] ?? "");
   }
   return out;
 }
@@ -127,9 +135,11 @@ function applyToDom(form: HTMLFormElement, values: DraftValues, exclude: Set<str
   }
 }
 
-export function useFormDraft({ key, formRef, enabled = true, exclude = [], onRestore }: Options) {
+export function useFormDraft({ key, formRef, enabled = true, exclude = [], listFields = [], onRestore }: Options) {
   const excludeSet = useRef(new Set(exclude));
   excludeSet.current = new Set(exclude);
+  const listFieldSet = useRef(new Set(listFields));
+  listFieldSet.current = new Set(listFields);
   const onRestoreRef = useRef(onRestore);
   onRestoreRef.current = onRestore;
   const active = useRef(false);
@@ -138,7 +148,7 @@ export function useFormDraft({ key, formRef, enabled = true, exclude = [], onRes
   const save = useCallback(() => {
     const form = formRef.current;
     if (!enabled || !active.current || !form) return;
-    writeDraft(key, snapshot(form, excludeSet.current));
+    writeDraft(key, snapshot(form, excludeSet.current, listFieldSet.current));
   }, [key, enabled, formRef]);
 
   const clear = useCallback(() => removeDraft(key), [key]);

@@ -23,21 +23,34 @@ export function JobForm({ job, defaults }: Props) {
   const [state, action, pending] = useActionState(saveJob, initial);
   const e = state.fieldErrors ?? {};
 
-  // Only keep a draft for a brand-new posting -- editing an existing job
-  // already has its saved values, and its chip re-seed logic would fight a
-  // restore. Chip lists (abilities/accommodations/shifts) aren't captured;
-  // the text fields, which are where the typing goes, are.
-  const formRef = useRef<HTMLFormElement>(null);
-  const { clear: clearDraft } = useFormDraft({ key: "job-new", formRef, enabled: !job });
-
   // Seeded from the manual defaults, then re-seeded (with a bumped key to
   // force ChipPicker/Input to pick up the new `initial`/`value`) whenever
-  // JobDescriptionAssist suggestions are accepted. Manual edits after that
-  // still work normally -- this only changes what the fields start from.
+  // JobDescriptionAssist suggestions are accepted, or a draft is restored.
+  // Manual edits after that still work normally -- this only changes what
+  // the fields start from.
   const [title, setTitle] = useState(job?.title ?? "");
   const [abilitiesSeed, setAbilitiesSeed] = useState(job?.abilities_required ?? []);
   const [accommodationsSeed, setAccommodationsSeed] = useState(job?.accommodations_offered ?? defaults.accommodations_offered);
+  const [availabilitySeed, setAvailabilitySeed] = useState(job?.availability ?? []);
   const [seedVersion, setSeedVersion] = useState(0);
+
+  // Only keep a draft for a brand-new posting -- editing an existing job
+  // already has its saved values. Chip lists (abilities/accommodations/
+  // shifts) round-trip through onRestore, same trick as acceptSuggestions
+  // below; the typed fields restore straight to the DOM.
+  const formRef = useRef<HTMLFormElement>(null);
+  const { clear: clearDraft } = useFormDraft({
+    key: "job-new",
+    formRef,
+    enabled: !job,
+    listFields: ["abilities_required", "accommodations_offered", "availability"],
+    onRestore: (values) => {
+      if (Array.isArray(values.abilities_required)) setAbilitiesSeed(values.abilities_required);
+      if (Array.isArray(values.accommodations_offered)) setAccommodationsSeed(values.accommodations_offered);
+      if (Array.isArray(values.availability)) setAvailabilitySeed(values.availability);
+      setSeedVersion((v) => v + 1);
+    },
+  });
 
   function acceptSuggestions(suggestion: ParsedJobTasks) {
     if (suggestion.suggestedTitle) setTitle(suggestion.suggestedTitle);
@@ -101,7 +114,13 @@ export function JobForm({ job, defaults }: Props) {
         suggestions={ACCOMMODATION_SUGGESTIONS}
         initial={accommodationsSeed}
       />
-      <ChipPicker name="availability" label="Shifts" suggestions={AVAILABILITY_OPTIONS} initial={job?.availability ?? []} />
+      <ChipPicker
+        key={`availability-${seedVersion}`}
+        name="availability"
+        label="Shifts"
+        suggestions={AVAILABILITY_OPTIONS}
+        initial={availabilitySeed}
+      />
       <div className="grid gap-4 sm:grid-cols-3">
         <Field id="city" label="City" error={e.city}>
           <Input id="city" name="city" defaultValue={job?.city ?? defaults.city} {...fieldAria("city", { error: e.city })} />
