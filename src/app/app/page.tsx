@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SampleMenteeDashboard } from "@/components/mentor/sample-mentee-dashboard";
 import { summarizeStatus } from "@/lib/agent/profile-status";
 import { requireProfile } from "@/lib/data/profile";
 import { createClient } from "@/lib/supabase/server";
@@ -83,15 +84,5 @@ export default async function DashboardPage() {
     );
   }
 
-  return (
-    <>
-      <PageHeader kicker="Your dashboard" title={`Hi ${first}`} description="Thank you for mentoring." />
-      <Card className="ap-accent ap-accent-coral ap-fade">
-        <CardHeader>
-          <CardTitle>Mentor tools are coming next</CardTitle>
-          <CardDescription>Soon you will see your mentees here and help keep their Passports up to date.</CardDescription>
-        </CardHeader>
-      </Card>
-    </>
-  );
+  return <SampleMenteeDashboard firstName={first} />;
 }

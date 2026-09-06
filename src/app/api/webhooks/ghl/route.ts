@@ -32,25 +32,25 @@ import { generateSmsReply } from "@/lib/comms/sms-agent";
  *    request must not be able to drive it.
  */
 export async function POST(req: NextRequest) {
-  const expectedSecret = process.env.HIGHLEVEL_INBOUND_WEBHOOK_SECRET;
+  const expectedSecret = process.env.HIGHLEVEL_INBOUND_WEBHOOK_SECRET || process.env.GHL_WEBHOOK_SECRET;
   if (expectedSecret) {
     const provided =
       req.headers.get("x-webhook-secret") ?? req.nextUrl.searchParams.get("secret") ?? "";
     if (provided !== expectedSecret) {
       console.warn("ghl webhook: rejected a request with a missing/incorrect secret");
-      return NextResponse.json({ ok: true }); // ack so GHL does not retry an attacker's payload for us
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
   } else {
-    console.warn("ghl webhook: HIGHLEVEL_INBOUND_WEBHOOK_SECRET is not set -- endpoint is unauthenticated");
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   const body = await req.json().catch(() => null);
-  if (!body) return NextResponse.json({ ok: true });
+  if (!body) return NextResponse.json({ error: "validation_error" }, { status: 400 });
 
   const messageId: string | undefined = body.messageId ?? body.id;
   const phone: string | undefined = body.phone ?? body.contactPhone;
   const text: string | undefined = body.message ?? body.body;
-  if (!phone || !text) return NextResponse.json({ ok: true });
+  if (!phone || !text || !messageId) return NextResponse.json({ error: "validation_error" }, { status: 400 });
   if (!messageId) {
     console.warn("ghl webhook: inbound message has no provider id -- cannot de-duplicate this one");
   }
