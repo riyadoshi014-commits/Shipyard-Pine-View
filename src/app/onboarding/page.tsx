@@ -6,7 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { OnboardingClient } from "./onboarding-client";
 import { OnboardingDemo } from "./onboarding-demo";
 
-export const metadata = { title: "Welcome" };
+// Audit F5 — the onboarding flow is auth-gated / transactional, not indexable.
+export const metadata = { title: "Welcome", robots: { index: false, follow: true } };
 
 export default async function OnboardingPage() {
   let userId: string | null = null;

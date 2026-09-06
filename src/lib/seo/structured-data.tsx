@@ -88,8 +88,9 @@ export function passportJsonLd(p: {
   city: string;
   state: string;
   abilities: string[];
-  education: { title: string; org: string; year?: string }[];
+  education: { title: string; org?: string; year?: string }[];
 }): Record<string, unknown> {
+  const schools = p.education.filter((e): e is { title: string; org: string; year?: string } => Boolean(e.org));
   return {
     "@context": "https://schema.org",
     "@type": "ProfilePage",
@@ -108,9 +109,9 @@ export function passportJsonLd(p: {
           }
         : {}),
       ...(p.abilities.length ? { knowsAbout: p.abilities } : {}),
-      ...(p.education.length
+      ...(schools.length
         ? {
-            alumniOf: p.education.map((e) => ({
+            alumniOf: schools.map((e) => ({
               "@type": "EducationalOrganization",
               name: e.org,
             })),
