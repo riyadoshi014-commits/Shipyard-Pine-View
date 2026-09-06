@@ -7,6 +7,25 @@ export type MatchScope = { employeeId?: string; jobIds?: string[] };
 const num = (v: unknown) => (v == null ? null : Number(v));
 
 /**
+ * Supabase client errors (PostgrestError, AuthError, StorageError, ...) are
+ * plain objects with a `.message` string -- they are NOT `instanceof Error`.
+ * `e instanceof Error ? e.message : String(e)` therefore always falls to
+ * `String(e)` for them, which stringifies to "[object Object]" and loses
+ * the actual message text. That silently broke the credential-rejection
+ * diagnostic below: the pattern match never saw the real "Invalid API key"
+ * text, so the specific, actionable error never fired -- only the generic
+ * fallback did. This checks for a `.message` string on any object shape
+ * before falling back to String(e).
+ */
+function errorMessage(e: unknown): string {
+  if (e instanceof Error) return e.message;
+  if (typeof e === "object" && e !== null && "message" in e && typeof (e as { message: unknown }).message === "string") {
+    return (e as { message: string }).message;
+  }
+  return String(e);
+}
+
+/**
  * Recomputes and upserts match rows. Runs with the service role because it
  * must read employee_private (pay ranges) across users. Only the score and
  * breakdown are stored; the inputs never leave this function.
@@ -87,7 +106,7 @@ export async function tryRunMatching(scope: MatchScope = {}): Promise<void> {
       );
     }
   } catch (e) {
-    const message = e instanceof Error ? e.message : String(e);
+    const message = errorMessage(e);
     if (/invalid api key|jwt|not authorized|permission denied/i.test(message)) {
       console.error(
         "matching failed: the Supabase service-role credential is being rejected. " +
