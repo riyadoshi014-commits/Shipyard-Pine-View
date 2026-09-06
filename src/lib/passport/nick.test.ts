@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { CHAPTERS, CLIPS, NICK, PASSPORT_URL } from "./nick";
@@ -43,5 +43,11 @@ describe("Nick's passport content", () => {
     expect(NICK.contact.email).toMatch(/@example\.com$/);
     expect(NICK.contact.phone).toMatch(/555/);
     expect(PASSPORT_URL).toMatch(/^https:\/\/[^/]+\/nick$/);
+  });
+
+  it("ships a QR code for the slide that points at the live URL", () => {
+    const qr = join(process.cwd(), "public", "passport", "nick", "qr.svg");
+    expect(existsSync(qr)).toBe(true);
+    expect(readFileSync(qr, "utf8")).toContain("<svg");
   });
 });
