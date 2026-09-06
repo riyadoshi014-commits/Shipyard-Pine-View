@@ -38,9 +38,34 @@ guardianship, a medical condition, or "what happened" to the candidate --
 in any form. If the conversation drifted toward any of that, steer your
 suggestions back to tasks and abilities.
 
-End with one short line describing what a strong answer would sound like, so
-the employer knows what to listen for. Return only the questions and that
-line -- no preamble.`;
+Also write one short line describing what a strong answer would sound like,
+so the employer knows what to listen for.
+
+Submit your answer through the submit_followups tool -- plain text only, no
+markdown formatting (no "**", no numbered or bulleted prefixes; the caller
+adds its own list formatting).`;
+
+const SUBMIT_TOOL: Anthropic.Tool = {
+  name: "submit_followups",
+  description: "Submit the suggested interview follow-up questions and what a strong answer sounds like.",
+  input_schema: {
+    type: "object",
+    properties: {
+      suggestedQuestions: {
+        type: "array",
+        items: { type: "string" },
+        description: "2 to 4 short follow-up questions, plain text, no leading bullet/number and no markdown.",
+      },
+      whatToListenFor: {
+        type: "string",
+        description: "One short, plain-text line describing what a strong answer would sound like.",
+      },
+    },
+    required: ["suggestedQuestions", "whatToListenFor"],
+    additionalProperties: false,
+  },
+  strict: true,
+};
 
 export interface CopilotSuggestion {
   suggestedQuestions: string[];
@@ -69,6 +94,8 @@ export async function suggestFollowUps(job: Job, transcriptSoFar: string): Promi
     system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
     thinking: { type: "adaptive" },
     output_config: { effort: "medium" },
+    tools: [SUBMIT_TOOL],
+    tool_choice: { type: "tool", name: "submit_followups" },
     messages: [
       {
         role: "user",
@@ -77,20 +104,20 @@ export async function suggestFollowUps(job: Job, transcriptSoFar: string): Promi
     ],
   });
 
-  const block = response.content.find((b) => b.type === "text");
-  const text = block && block.type === "text" ? block.text : "";
-
-  if (containsForbiddenTopic(text)) {
-    // Fail closed: never surface a suggestion that trips the check.
-    return { suggestedQuestions: [], whatToListenFor: "", flagged: true };
+  const toolUse = response.content.find((b) => b.type === "tool_use" && b.name === "submit_followups");
+  if (!toolUse || toolUse.type !== "tool_use") {
+    return { suggestedQuestions: [], whatToListenFor: "", flagged: false };
   }
 
-  const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
-  const listenForIdx = lines.findIndex((l) => /listen for/i.test(l));
-  const suggestedQuestions = (listenForIdx >= 0 ? lines.slice(0, listenForIdx) : lines).filter((l) =>
-    /^[-*\d.]/.test(l)
-  );
-  const whatToListenFor = listenForIdx >= 0 ? lines.slice(listenForIdx).join(" ") : "";
+  const input = toolUse.input as { suggestedQuestions?: string[]; whatToListenFor?: string };
+  const suggestedQuestions = input.suggestedQuestions ?? [];
+  const whatToListenFor = input.whatToListenFor ?? "";
+
+  if (suggestedQuestions.some(containsForbiddenTopic) || containsForbiddenTopic(whatToListenFor)) {
+    // Fail closed: never surface a suggestion that trips the check, no
+    // matter which structured field it landed in.
+    return { suggestedQuestions: [], whatToListenFor: "", flagged: true };
+  }
 
   return { suggestedQuestions, whatToListenFor, flagged: false };
 }

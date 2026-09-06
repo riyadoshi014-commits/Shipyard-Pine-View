@@ -13,6 +13,17 @@ type CopilotResult = {
   demoModeFallback?: boolean;
 };
 
+// Defense in depth: the tool schema asks the model for plain text with no
+// markdown and no leading bullet/number, but this is still free-form model
+// output -- strip anything that slips through rather than show a raw "**"
+// or "1." to the employer.
+function stripStrayMarkdown(text: string): string {
+  return text
+    .replace(/^[-*\d.]+\s*/, "")
+    .replace(/\*\*/g, "")
+    .trim();
+}
+
 /**
  * Employer-side only, disclosed, and read by the employer alone -- the
  * candidate never sees this. See src/lib/interview-copilot.ts for why this
@@ -76,10 +87,12 @@ export function InterviewCopilot({ jobId }: { jobId: string }) {
           <div className="rounded-lg border p-3 text-sm">
             <ul className="ml-4 list-disc">
               {result.suggestedQuestions.map((q, i) => (
-                <li key={i}>{q.replace(/^[-*\d.]+\s*/, "")}</li>
+                <li key={i}>{stripStrayMarkdown(q)}</li>
               ))}
             </ul>
-            {result.whatToListenFor && <p className="mt-2 text-muted-foreground">{result.whatToListenFor}</p>}
+            {result.whatToListenFor && (
+              <p className="mt-2 text-muted-foreground">{stripStrayMarkdown(result.whatToListenFor)}</p>
+            )}
           </div>
         )}
       </CardContent>

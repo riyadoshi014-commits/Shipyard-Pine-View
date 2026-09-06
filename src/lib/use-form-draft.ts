@@ -84,6 +84,13 @@ function snapshot(form: HTMLFormElement, exclude: Set<string>, listFields: Set<s
     const all = data.getAll(key).map(String);
     out[key] = listFields.has(key) || all.length > 1 ? all : (all[0] ?? "");
   }
+  // A ChipPicker with nothing selected renders no hidden inputs at all, so a
+  // deliberately-emptied list field is otherwise indistinguishable from one
+  // that was never touched -- restore would then silently bring the old
+  // selection back. Record it explicitly as [] so onRestore still fires.
+  for (const key of listFields) {
+    if (!(key in out) && !exclude.has(key)) out[key] = [];
+  }
   return out;
 }
 
