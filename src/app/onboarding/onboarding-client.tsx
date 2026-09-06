@@ -19,7 +19,11 @@ export function OnboardingClient({ userId, fullName: knownName, siteUrl, voiceAv
   const storage: GuideStorage = userId ? "supabase" : "local";
   const [name, setName] = useState(knownName);
   const [draftName, setDraftName] = useState("");
-  const [mode, setMode] = useState<GuideMode | null>(null);
+  // When voice isn't configured, there's only one real choice -- don't make
+  // someone click through a chooser to discover the other option is
+  // disabled. Skip straight to text. If voice is ever configured, this
+  // still shows the real chooser so people can pick either.
+  const [mode, setMode] = useState<GuideMode | null>(voiceAvailable ? null : "text");
   const first = name.split(" ")[0] || "there";
 
   if (!name) {
@@ -91,9 +95,14 @@ export function OnboardingClient({ userId, fullName: knownName, siteUrl, voiceAv
       ) : (
         <TextOnboarding userId={userId ?? "local-user"} fullName={name} siteUrl={siteUrl} storage={storage} />
       )}
-      <button type="button" onClick={() => setMode(null)} className="self-start text-sm font-bold text-green underline">
-        Change how we talk
-      </button>
+      {/* Only offer to change modes when there's a real second mode to switch
+          to -- with voice unavailable, "changing" would just restart the
+          same text conversation and lose whatever was already typed. */}
+      {voiceAvailable && (
+        <button type="button" onClick={() => setMode(null)} className="self-start text-sm font-bold text-green underline">
+          Change how we talk
+        </button>
+      )}
     </div>
   );
 }
