@@ -1,54 +1,33 @@
-# Internal Website Testing
+# Test the commute MVP through the website
 
-## Checks available now
+## Setup
 
-1. In the project folder, run `npm run build` and then `npm start`.
-2. Open `http://localhost:3000`. The ConnectAble home page should load.
-3. Open `http://localhost:3000/api/health`. It should return:
+Apply the migrations in `DATABASE_SETUP.md` to a staging Supabase project. Configure the app's URL and publishable key, and create test mentor, employee and employer accounts. Mentor accounts use the existing admin invitation process; public signup cannot select mentor.
 
-   ```json
-   {"status":"ok","service":"connectable","phases":[0,2]}
-   ```
+Run `npm ci`, then `npm run dev`. Open http://localhost:3000. Use three separate browser sessions so the logins do not replace one another. This MVP needs real initialized tables; `/api/health` alone does not check database readiness.
 
-4. Open `http://localhost:3000/api/coach/participants` in a private browser window. It should return HTTP 401 with a structured `unauthenticated` error. This confirms the mentor data is not public.
-5. Open `http://localhost:3000/api/moderation/queue` in the same private window. It should also return HTTP 401.
+## One complete test
 
-Run `npm run test:smoke` for the equivalent check across every API route. Run `npm run test:stress` to repeat the public and protected checks under concurrent load.
+1. Mentor: sign in and open `/app/mentor`. Select the test employee under **Invite an employee**, then **Invite**.
+2. Employee: sign in, open **Commutes**, then **Accept mentor**. Before acceptance the mentor should not see this employee's trips.
+3. Employee: expand **Request a ride**. Enter **From**, **To**, **Arrive by**, and optionally select the test employer. Click **Request ride**.
+4. Mentor: refresh. Expand **Help arrange this ride**, enter who drives/whose car/where to meet, and choose a pickup time before arrival. Click **Send plan for confirmation**.
+5. Employee: refresh, review the plan, then **Confirm ride**.
+6. Employer: refresh **Commutes**. The selected employer should see the employee's trip and confirmed mentor plan. An unselected employer should not see it.
+7. Mentor: click **Mark completed**, then select **Show finished trips**. Reload the page and verify the trip remains completed.
+8. Repeat with the employer proposing the plan instead. Employee confirmation is still required, and the mentor can see and help complete the arrangement.
 
-## Mentor workspace demo
+## Permission and failure checks
 
-1. Sign in with the existing mentor account and open `http://localhost:3000/app`.
-2. Choose **View demo profile** for any of the five sample mentees.
-3. In **Mentor follow-up**, use **Mark complete** to close the displayed follow-up or **Record check-in** to log a check-in.
-4. Add a note in **Private mentor note**. It is explicitly marked **Visible only to mentors.**
-5. Add a factual observation in **Draft an ability observation**, then save it. The interface explains that the mentee must review and publish it.
+- End a pairing from either participant. The former mentor loses trip access and their upcoming plans return to Needs a ride.
+- Remove employer sharing. The former employer loses access; its upcoming plan is withdrawn. A mentor's plan remains.
+- Edit a proposed pickup time while another employee tab has an older version. Confirming the older version must show a refresh message.
+- Try pickup after arrival or in the past. The server must reject it.
+- Try another employee or unpaired mentor account. They must not see or change the trip.
+- Check phone width, keyboard navigation, visible form labels, errors and confirmation messages.
 
-These actions are intentionally browser-local demo data while the live Supabase migration remains unapplied. The protected Phase 2 API routes provide the persistent version once the database is migrated and seeded.
+## Automated checks
 
-## Live check-in email setup
+`npm test` runs UI/server-action/PostgreSQL integration and authorization tests without remote credentials. `npm run build` compiles and type-checks production. `npm run test:smoke` checks public pages and unauthenticated route boundaries after a build. `npm run test:stress` exercises only local health and authentication guards, not database write capacity.
 
-1. Apply both database migrations, including `20260906000100_mentor_check_ins.sql`.
-2. Set the server-only `SUPABASE_SECRET_KEY`, `CRON_SECRET`, `GMAIL_USER`, and `GMAIL_APP_PASSWORD` environment variables in the deployment environment. Do not put them in browser-exposed `NEXT_PUBLIC_` variables.
-3. Configure a scheduler to call `POST /api/cron/drain` with `Authorization: Bearer <CRON_SECRET>` at least once a minute.
-4. A signed-in mentor can then send `POST /api/coach/participants/<participant-id>/check-ins` with a future ISO `startsAt`, IANA `timeZone`, optional `location`, and `durationMinutes`. The API queues the check-in confirmation to that mentee's account email.
-
-The sample profiles use browser-only data and intentionally do not send email. Use a fictional test recipient for the first live scheduling check.
-
-## Full mentor acceptance test after frontend integration
-
-Use fictional accounts and records only.
-
-1. Invite a test mentor through the server-side admin process and accept the invitation. Confirm there is no public mentor-registration option.
-2. Sign in as that mentor. Confirm the dashboard lists only employees with an active mentoring relationship, granted consent, and no revocation.
-3. Try navigating directly to an unrelated employee's profile URL. Confirm the website displays an access-denied state and the network response is HTTP 403.
-4. Open an assigned employee. Confirm abilities, applications, accommodations, and endorsements load.
-5. Suggest an ability. Confirm it is labeled as mentor-added, remains a draft, and is not employer-visible.
-6. Add an endorsement with an observation and support level. Confirm the mentor's name is visible in the attribution.
-7. Review an AI-suggested ability. Confirm approval leaves it as a employee-owned draft rather than publishing it.
-8. Approve and reject test evidence. Confirm rejection requires a reason and both decisions record the mentor attribution.
-9. Review a machine-generated caption. Confirm approval requires reviewed text and preserves the original generated text.
-10. Revoke the mentoring relationship from the employee flow, then refresh the mentor page and retry its direct URL. Access should stop immediately.
-11. Publish a reviewed draft from the employee flow. Confirm the employer-facing view shows only the employee-published version.
-12. Enable degraded model mode in the deployment environment. Confirm the site supplies the canned review guidance and continues operating without a model request.
-
-The employee publish and consent-revocation steps depend on Phase 1. The employer visibility check depends on Phase 3. Until those phases are connected, verify the corresponding backend restriction through the automated access tests.
+The previous sample-only dashboard is gone. `/demo/mentor` is an explanation with a link to the signed-in workspace, not an alternate data store.

@@ -233,6 +233,7 @@ async function ensureUser(email: string, full_name: string, role: string): Promi
     password: DEMO_PASSWORD,
     email_confirm: true,
     user_metadata: { full_name, role },
+    app_metadata: { connectable_role: role },
   });
   if (error || !data.user) throw error ?? new Error("no user returned");
   return data.user.id;

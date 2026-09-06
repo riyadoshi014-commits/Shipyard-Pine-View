@@ -31,6 +31,17 @@ try {
   assert.match(await home.text(), /ConnectAble/i);
   checks += 1;
 
+  const demo = await fetch(`${server.baseUrl}/demo/mentor`);
+  assert.equal(demo.status, 200);
+  assert.match(await demo.text(), /One job: help people get to work/);
+  checks += 1;
+  for (const route of ['/app/mentor', '/app/commutes', '/app/support', `/app/mentor/mentees/${id}`]) {
+    const response = await fetch(`${server.baseUrl}${route}`, {redirect:'manual'});
+    assert.equal(response.status, 307);
+    assert.match(response.headers.get('location'), /\/login/);
+    checks += 1;
+  }
+
   const health = await fetch(`${server.baseUrl}/api/health`);
   assert.equal(health.status, 200);
   assert.deepEqual(await readJson(health), { status: "ok", service: "connectable", phases: [0, 2] });
@@ -86,5 +97,5 @@ if (failure) {
   console.error(failure);
   process.exitCode = 1;
 } else {
-  console.log(`Smoke test passed: ${checks} production HTTP checks across every API route.`);
+  console.log(`Smoke test passed: ${checks} production HTTP checks for public pages, mentor/support guards and Phase 0/2 API guards.`);
 }
