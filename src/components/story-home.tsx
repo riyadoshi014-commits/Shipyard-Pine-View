@@ -146,7 +146,8 @@ export function StoryHome({ className = "" }: { className?: string }) {
               </div>
               <div id="nick-chapter-panel" role="tabpanel" aria-labelledby={`chapter-tab-${activeChapter}`} className={styles.chapterPanel}>
                 <div key={chapter.name} className={styles.chapterText}><h3>{chapter.title}</h3><p>{chapter.text}</p></div>
-                <button className={styles.textButton} onClick={(event) => openFilm("nick", event.currentTarget, chapter.time)}><Play size={15} fill="currentColor" aria-hidden="true" /> Watch this moment <span>{chapter.locator}</span><ArrowUpRight size={18} aria-hidden="true" /></button>
+                <button className={styles.textButton} onClick={(event) => openFilm("nick", event.currentTarget, chapter.time)}><Play size={15} fill="currentColor" aria-hidden="true" /> Watch this moment <span>{chapter.locator}</span><ArrowUpRight size={18} aria-hidden="true" /></button>{" "}
+                <Link href="/nick" className={styles.textButton}>See Nick’s live Ability Passport <ArrowUpRight size={18} aria-hidden="true" /></Link>
               </div><span className={styles.storyByline}>One person. A whole new chapter.</span>
             </div>
           </div>
