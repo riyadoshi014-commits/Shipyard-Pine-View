@@ -19,7 +19,7 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="mx-auto max-w-2xl">
-      <PageHeader title={`Edit: ${j.title}`}>
+      <PageHeader kicker="Edit job" title={`Edit: ${j.title}`}>
         <Button variant="outline" render={<Link href={`/app/employer/jobs/${j.id}/candidates`} />}>
           Candidates
         </Button>

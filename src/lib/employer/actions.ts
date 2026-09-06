@@ -5,20 +5,25 @@ import { redirect } from "next/navigation";
 import { firstFieldErrors, type FormState } from "@/lib/auth/schemas";
 import { requireRole } from "@/lib/data/profile";
 import { formToObject } from "@/lib/forms";
-import { tryRunMatching } from "@/lib/match/run";
+import { clearMatches, tryRunMatching } from "@/lib/match/run";
 import { createClient } from "@/lib/supabase/server";
 import { EMPLOYER_LIST_FIELDS, employerProfileFormSchema, JOB_LIST_FIELDS, jobFormSchema } from "./schemas";
 
 export async function saveEmployerProfile(_prev: FormState, formData: FormData): Promise<FormState> {
   const parsed = employerProfileFormSchema.safeParse(formToObject(formData, EMPLOYER_LIST_FIELDS));
   if (!parsed.success) return { fieldErrors: firstFieldErrors(parsed.error) };
+  const { full_name, ...company } = parsed.data;
 
   const { userId } = await requireRole("employer");
   const supabase = await createClient();
   const { error } = await supabase
     .from("employer_profiles")
-    .upsert({ user_id: userId, ...parsed.data, website: parsed.data.website || null }, { onConflict: "user_id" });
+    .upsert({ user_id: userId, ...company, website: company.website || null }, { onConflict: "user_id" });
   if (error) return { error: "We couldn't save the company. Please try again." };
+
+  const { error: nameError } = await supabase.from("profiles").update({ full_name }).eq("id", userId);
+  if (nameError) return { error: "Saved the company, but not your name. Please try again." };
+
   revalidatePath("/app/employer");
   return { success: "Saved." };
 }
@@ -56,7 +61,13 @@ export async function setJobStatus(formData: FormData): Promise<void> {
   if (!jobId) return;
   const { userId } = await requireRole("employer");
   const supabase = await createClient();
-  await supabase.from("jobs").update({ status }).eq("id", jobId).eq("employer_id", userId);
-  if (status === "open") await tryRunMatching({ jobIds: [jobId] });
+  const { error } = await supabase.from("jobs").update({ status }).eq("id", jobId).eq("employer_id", userId);
+  if (error) return;
+  if (status === "open") {
+    await tryRunMatching({ jobIds: [jobId] });
+  } else {
+    // A closed job must not keep showing up in candidates' match lists.
+    await clearMatches({ jobIds: [jobId] });
+  }
   revalidatePath("/app/employer");
 }

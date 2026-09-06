@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ArrowDown, ArrowRight, ArrowUpRight, Check, Menu, MessageCircle, Play, Plus, X } from "lucide-react";
 import styles from "./story-home.module.css";
+import { FAQ } from "./story-home-faq";
 
 const films = {
   nick: { title: "Nick’s story: The Drive to Include", file: "nick", portrait: false },
@@ -120,7 +121,7 @@ export function StoryHome({ className = "" }: { className?: string }) {
       </header>
       <main id="main">
         <section className={styles.hero} aria-labelledby="hero-title">
-          <Image src="/stories/nick-team.jpg" alt="Nick and a colleague sharing a moment at Sarasota Ford" fill preload sizes="100vw" className={styles.heroImage} />
+          <Image src="/stories/nick-team.jpg" alt="Nick and a colleague sharing a moment at Sarasota Ford" fill priority sizes="100vw" className={styles.heroImage} />
           <div className={styles.heroShade} />
           <div className={styles.heroContent}>
             <p className={styles.eyebrow}><span /> Every ability. A place to belong.</p>
@@ -184,12 +185,7 @@ export function StoryHome({ className = "" }: { className?: string }) {
           <div className={styles.purposeFoot}><p>Inclusion. Jobs. Dignity.</p><span>From the Inclusion Revolution community<br />Sarasota–Manatee, Florida</span></div>
         </section>
 
-        <section className={styles.faq} aria-labelledby="faq-title" data-reveal><div><p className={styles.sectionLabel}>A few helpful answers</p><h2 id="faq-title">A new beginning<br />can start with a question.</h2></div><div>{[
-          ["Who is ConnectAble for?", "Job seekers with intellectual and developmental disabilities, employers who want to hire inclusively, and mentors who support the connection. There’s a place for each of you."],
-          ["How do I make an Ability Passport?", "Create a job seeker account, then share your abilities, experience, availability, and what helps you work well. Your Passport Guide can help you talk or type through it, one question at a time. You can also fill it in yourself."],
-          ["Can someone help me get started?", "Yes. You can go through the questions with someone you trust. You can take your time, and you can stop whenever you need to."],
-          ["What if I’m an employer or a mentor?", "Choose your role when you create an account. Employers can describe the work they need done and the accommodations they can offer. Mentors can help job seekers through the process."],
-        ].map(([question, answer]) => <details key={question}><summary>{question}<Plus size={19} aria-hidden="true" /></summary><p>{answer}</p></details>)}</div></section>
+        <section className={styles.faq} aria-labelledby="faq-title" data-reveal><div><p className={styles.sectionLabel}>A few helpful answers</p><h2 id="faq-title">A new beginning<br />can start with a question.</h2></div><div>{FAQ.map(([question, answer]) => <details key={question}><summary>{question}<Plus size={19} aria-hidden="true" /></summary><p>{answer}</p></details>)}</div></section>
 
         <section id="get-started" className={styles.finalCta} aria-labelledby="start-title"><div data-reveal><p className={styles.sectionLabel}><span>03</span> There’s a place for you here</p><h2 id="start-title">The next story<br />could be <span>yours.</span></h2></div><div className={styles.roleLinks} data-reveal><Link href="/signup?role=employee"><span><small>FOR JOB SEEKERS</small>I’m ready for my next step</span><ArrowUpRight aria-hidden="true" /></Link><Link href="/signup?role=employer"><span><small>FOR EMPLOYERS</small>I want to build an inclusive team</span><ArrowUpRight aria-hidden="true" /></Link><Link href="/signup?role=mentor"><span><small>FOR MENTORS</small>I’m here to help someone grow</span><ArrowUpRight aria-hidden="true" /></Link></div></section>
       </main>

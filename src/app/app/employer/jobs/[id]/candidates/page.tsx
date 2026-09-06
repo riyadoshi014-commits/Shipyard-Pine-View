@@ -51,6 +51,7 @@ export default async function CandidatesPage({
   return (
     <>
       <PageHeader
+        kicker="Candidates"
         title={`Candidates for ${j.title}`}
         description={`${all.length} ${all.length === 1 ? "person" : "people"}, ranked by fit. Accommodations they need are checked when this job offers them.`}
       >
@@ -62,7 +63,11 @@ export default async function CandidatesPage({
         </Button>
       </PageHeader>
 
-      <form method="get" className="mb-6 grid gap-3 rounded-lg border p-4 sm:grid-cols-[1fr_1fr_1fr_auto]" aria-label="Filters">
+      <form
+        method="get"
+        className="mb-6 grid gap-3 rounded-2xl border bg-card p-4 shadow-[var(--ap-shadow-md)] sm:grid-cols-[1fr_1fr_1fr_auto]"
+        aria-label="Filters"
+      >
         <div>
           <label htmlFor="f-state" className="mb-1 block text-sm font-bold">
             State
@@ -112,7 +117,11 @@ export default async function CandidatesPage({
         <ul className="flex flex-col gap-4">
           {candidates.map((c) => (
             <li key={c.matchId}>
-              <Card>
+              <Card
+                className={`ap-fade ap-accent ${
+                  c.score >= 75 ? "ap-accent-green" : c.score >= 50 ? "ap-accent-yellow" : "ap-accent-muted"
+                }`}
+              >
                 <CardContent className="grid gap-6 p-6 md:grid-cols-[auto_1fr_auto]">
                   <MatchRing score={c.score} />
                   <div className="flex flex-col gap-3">

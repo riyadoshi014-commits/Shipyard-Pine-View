@@ -7,7 +7,8 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
   const { role } = await searchParams;
   return (
     <>
-      <h1 className="mb-2 text-3xl font-bold">Create your account</h1>
+      <p className="ap-label mb-1">Sign up</p>
+      <h1 className="mb-2 text-3xl font-extrabold tracking-tight">Create your account</h1>
       <p className="mb-6 text-muted-foreground">It takes about a minute.</p>
       <SignupForm defaultRole={role} />
       <p className="mt-6 text-sm">

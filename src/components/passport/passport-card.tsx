@@ -28,7 +28,7 @@ function HistoryGroup({ title, Icon, items }: { title: string; Icon: typeof Awar
 export function PassportCard({ person }: { person: SampleEmployee }) {
   const place = [person.city, person.state].filter(Boolean).join(", ");
   return (
-    <article className="flex flex-col gap-6 rounded-2xl border-2 border-green bg-card p-6 sm:p-8">
+    <article className="flex flex-col gap-6 rounded-2xl border-2 border-green bg-card p-6 shadow-[var(--ap-shadow-md)] sm:p-8">
       <header>
         <p className="text-sm font-bold text-green">Ability Passport</p>
         <h2 className="text-3xl font-bold">{person.fullName}</h2>

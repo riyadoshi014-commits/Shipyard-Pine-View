@@ -65,31 +65,28 @@ const EXTRACT_TOOL: Anthropic.Tool = {
   strict: true,
 };
 
-const SYSTEM_PROMPT = `Extract only the tasks and abilities actually described or clearly implied by
-this job description. Do not invent a requirement the employer didn't
-describe. If the description is vague or short, extract fewer items rather
-than padding the list with generic guesses.
+const SYSTEM_PROMPT = `Turn an employer's plain description of the work into structured
+suggestions: a short job title, the abilities the work needs, and any
+accommodations the employer offers. Use only what the description actually
+says or clearly implies. Do not invent a requirement the employer didn't
+describe -- if the description is short or vague, suggest fewer items rather
+than padding with guesses.
 
-Write "suggestedAbilities" in plain, concrete language a job coach would
-use -- what the person would actually do, not resume jargon or corporate
-buzzwords (e.g. "stocking shelves" not "inventory management", "cash
-register" not "point-of-sale operations").
+Write abilities the way a job coach would say them -- the concrete task
+("cash register", "stocking shelves"), not corporate phrasing
+("point-of-sale operations", "inventory management"). Suggest a title only
+if the description clearly supports one.
 
-Suggest a short, plain "suggestedTitle" only if the description clearly
-supports one.
-
-Only suggest "suggestedAccommodations" if the description itself mentions
-something about support needs, training, or flexibility (for example: the
-employer says they'll train the person, offers flexible hours, or mentions
-being willing to walk someone through steps). Frame every accommodation
-suggestion strictly as something the EMPLOYER can provide -- never as a
-candidate filter, requirement, or anything about who the candidate is. If
-nothing in the description supports an accommodation suggestion, leave the
-list empty rather than guessing.
+Suggest an accommodation only when the description itself mentions support,
+training, or flexibility (for example: the employer offers to train
+someone, allows flexible hours, or will walk a person through the steps).
+Frame every accommodation as something the employer provides -- never as a
+candidate filter, a requirement, or a statement about who the candidate is.
+If nothing in the description supports one, leave the list empty.
 
 Never produce anything resembling an age, disability, or health-related
-field. There is no such field on a job posting in this app and you must
-never suggest, imply, or ask about one -- not as a requirement, not as an
+field. A job posting in this app has no such field, and you must never
+suggest, imply, or ask about one -- not as a requirement, not as an
 accommodation, not in the title.`;
 
 export async function parseJobTasksFromDescription(description: string): Promise<ParsedJobTasks> {

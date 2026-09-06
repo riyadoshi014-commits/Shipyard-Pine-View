@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { Field, fieldAria } from "@/components/form/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +28,7 @@ export function SignupForm({ defaultRole }: { defaultRole?: string }) {
         {ROLE_OPTIONS.map((r) => (
           <label
             key={r.value}
-            className="flex cursor-pointer items-start gap-3 rounded-lg border p-4 has-[:checked]:border-green has-[:checked]:bg-green-soft"
+            className="flex cursor-pointer items-start gap-3 rounded-2xl border p-4 shadow-[var(--ap-shadow-md)] has-[:checked]:border-green has-[:checked]:bg-green-soft"
           >
             <input type="radio" name="role" value={r.value} defaultChecked={r.value === preset} className="mt-1 size-5 accent-green" />
             <span className="font-bold">{r.label}</span>
@@ -54,10 +55,30 @@ export function SignupForm({ defaultRole }: { defaultRole?: string }) {
       {e.age_confirmed && <p role="alert" className="text-sm font-bold text-destructive">{e.age_confirmed}</p>}
 
       {state.error && (
-        <p role="alert" className="rounded-md bg-coral-soft p-3 font-bold text-coral-foreground">
+        <p role="alert" className="rounded-2xl bg-coral-soft p-4 font-bold text-coral-foreground">
           {state.error}
         </p>
       )}
+
+      <p className="text-sm text-muted-foreground">
+        By creating an account you agree to our{" "}
+        <Link href="/terms" className="font-bold text-green underline">
+          terms and conditions
+        </Link>{" "}
+        and the agreement for your role (
+        <Link href="/terms/employee" className="font-bold text-green underline">
+          job seeker
+        </Link>
+        ,{" "}
+        <Link href="/terms/employer" className="font-bold text-green underline">
+          employer
+        </Link>
+        ,{" "}
+        <Link href="/terms/mentor" className="font-bold text-green underline">
+          mentor
+        </Link>
+        ).
+      </p>
 
       <Button type="submit" size="lg" disabled={pending}>
         {pending ? "Creating your account…" : "Create my account"}

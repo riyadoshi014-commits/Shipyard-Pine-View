@@ -24,7 +24,7 @@ export function LoginForm({ next, initialError }: { next?: string; initialError?
         <Input id="password" name="password" type="password" autoComplete="current-password" {...fieldAria("password", { error: e.password })} />
       </Field>
       {error && (
-        <p role="alert" className="rounded-md bg-coral-soft p-3 font-bold text-coral-foreground">
+        <p role="alert" className="rounded-2xl bg-coral-soft p-4 font-bold text-coral-foreground">
           {error}
         </p>
       )}

@@ -29,27 +29,50 @@ export default async function EmployerPage() {
     }
   }
 
+  let totalCandidates = 0;
+  let totalStrong = 0;
+  for (const c of counts.values()) {
+    totalCandidates += c.total;
+    totalStrong += c.strong;
+  }
+
   return (
     <>
       <PageHeader
+        kicker="Company and jobs"
         title={company?.company_name || `Hi ${fullName.split(" ")[0] || "there"}`}
         description={company?.company_name ? "Post a role and see who fits." : "Start by telling job seekers who you are."}
       >
         <Button render={<Link href="/app/employer/jobs/new" />}>Post a job</Button>
       </PageHeader>
 
+      <div className="ap-stats ap-fade mb-2">
+        <div className="ap-stat">
+          <div className="ap-stat-val">{jobList.length}</div>
+          <div className="ap-label mt-0.5">Jobs</div>
+        </div>
+        <div className="ap-stat">
+          <div className="ap-stat-val">{totalCandidates}</div>
+          <div className="ap-label mt-0.5">Candidates</div>
+        </div>
+        <div className="ap-stat">
+          <div className="ap-stat-val">{totalStrong}</div>
+          <div className="ap-label mt-0.5">Strong fits</div>
+        </div>
+      </div>
+
       <div className="grid gap-8 lg:grid-cols-2">
         <section>
-          <h2 className="mb-4 text-xl font-bold">Jobs</h2>
+          <p className="ap-rule">Jobs</p>
           {jobList.length === 0 ? (
-            <p className="rounded-lg border border-dashed p-4 text-muted-foreground">No jobs yet. Post one and candidates are ranked for it right away.</p>
+            <p className="rounded-2xl border border-dashed p-4 text-muted-foreground">No jobs yet. Post one and candidates are ranked for it right away.</p>
           ) : (
             <ul className="flex flex-col gap-4">
               {jobList.map((job) => {
                 const c = counts.get(job.id) ?? { total: 0, strong: 0 };
                 return (
                   <li key={job.id}>
-                    <Card>
+                    <Card className="ap-fade ap-accent ap-accent-purple">
                       <CardHeader>
                         <CardTitle>
                           {job.title}
@@ -82,8 +105,8 @@ export default async function EmployerPage() {
         </section>
 
         <section>
-          <h2 className="mb-4 text-xl font-bold">Company profile</h2>
-          <EmployerProfileForm profile={(company as EmployerProfile | null) ?? null} />
+          <p className="ap-rule">Company profile</p>
+          <EmployerProfileForm profile={(company as EmployerProfile | null) ?? null} fullName={fullName} />
         </section>
       </div>
     </>

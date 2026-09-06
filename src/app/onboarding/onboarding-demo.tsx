@@ -42,7 +42,8 @@ export function OnboardingDemo() {
   if (!mode) {
     return (
       <div className="flex flex-col gap-6">
-        <h1 className="text-3xl font-bold">Welcome, Nick</h1>
+        <p className="ap-label">Passport guide</p>
+        <h1 className="text-3xl font-extrabold tracking-tight">Welcome, Nick</h1>
         <p>Your Passport Guide will ask a few easy questions and build your Ability Passport as you go. How would you like to talk?</p>
         <div className="grid gap-4 sm:grid-cols-2">
           <button type="button" onClick={() => start("voice")} className="flex flex-col items-center gap-3 rounded-xl border-2 p-8 text-lg font-bold hover:border-green hover:bg-green-soft">
@@ -68,13 +69,13 @@ export function OnboardingDemo() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-3xl font-bold">Let&apos;s build your Passport</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight">Let&apos;s build your Passport</h1>
         <p role="status" className="rounded-full bg-muted px-3 py-1 text-sm font-bold">
           {mode === "voice" ? "Listening" : "Connected"}
         </p>
       </div>
 
-      <ol aria-label="Conversation" aria-live="polite" className="flex min-h-64 flex-col gap-3 rounded-lg border p-4">
+      <ol aria-label="Conversation" aria-live="polite" className="flex min-h-64 flex-col gap-3 rounded-2xl border bg-card p-4 shadow-[var(--ap-shadow-md)]">
         {lines.map((line) => (
           <li
             key={line.id}
@@ -87,7 +88,7 @@ export function OnboardingDemo() {
       </ol>
 
       {done ? (
-        <div className="rounded-lg border-2 border-green bg-green-soft p-4">
+        <div className="rounded-2xl border-2 border-green bg-green-soft p-4 shadow-[var(--ap-shadow-md)]">
           <p className="font-bold">Your Ability Passport is ready.</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Button render={<Link href="/app/passport" />}>See my Passport</Button>

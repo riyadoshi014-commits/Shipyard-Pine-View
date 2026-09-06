@@ -223,3 +223,205 @@
     }
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+ * The AdmitPath-styled look. Shared primitives apply under both
+ * .ap-app (the signed-in shell) and .ap-site (public pages: landing
+ * frame, marketing, auth, onboarding, public Passport). Every colour
+ * comes from the tokens above — no new hue — and the font stack is
+ * untouched. Motion is neutralised by the prefers-reduced-motion
+ * block above. Sidebar / tab-bar rules stay .ap-app only.
+ * ───────────────────────────────────────────────────────────── */
+.ap-app,
+.ap-site {
+  --ap-shadow-md: 0 4px 16px oklch(0.2 0.02 160 / 0.08), 0 2px 6px oklch(0.2 0.02 160 / 0.05);
+  --ap-shadow-lg: 0 14px 40px oklch(0.2 0.02 160 / 0.12), 0 5px 16px oklch(0.2 0.02 160 / 0.07);
+}
+.dark .ap-app,
+.dark .ap-site {
+  --ap-shadow-md: 0 4px 16px oklch(0 0 0 / 0.45), 0 2px 6px oklch(0 0 0 / 0.35);
+  --ap-shadow-lg: 0 18px 48px oklch(0 0 0 / 0.6), 0 6px 18px oklch(0 0 0 / 0.4);
+}
+
+/* Cards: rounder, soft layered shadow in place of the hairline ring. */
+:is(.ap-app, .ap-site) [data-slot="card"] {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--ap-shadow-md);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s;
+}
+:is(.ap-app, .ap-site) li > [data-slot="card"]:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--ap-shadow-lg);
+}
+
+/* Left accent stripe for list cards. */
+:is(.ap-app, .ap-site) .ap-accent { border-left: 4px solid var(--border); }
+:is(.ap-app, .ap-site) .ap-accent-green { border-left-color: var(--green); }
+:is(.ap-app, .ap-site) .ap-accent-coral { border-left-color: var(--coral); }
+:is(.ap-app, .ap-site) .ap-accent-purple { border-left-color: var(--purple); }
+:is(.ap-app, .ap-site) .ap-accent-yellow { border-left-color: var(--yellow); }
+:is(.ap-app, .ap-site) .ap-accent-muted { border-left-color: var(--muted-foreground); }
+
+/* Uppercase micro-label. */
+:is(.ap-app, .ap-site) .ap-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted-foreground);
+}
+
+/* Centered section divider: rule — LABEL — rule. */
+:is(.ap-app, .ap-site) .ap-rule {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.75rem 0 0.9rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted-foreground);
+}
+:is(.ap-app, .ap-site) .ap-rule::before,
+:is(.ap-app, .ap-site) .ap-rule::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Stat chips. */
+:is(.ap-app, .ap-site) .ap-stats { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+:is(.ap-app, .ap-site) .ap-stat {
+  flex: 1 1 7rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 0.85rem 0.75rem;
+  text-align: center;
+  box-shadow: var(--ap-shadow-md);
+}
+:is(.ap-app, .ap-site) .ap-stat-val { font-size: 1.5rem; font-weight: 800; line-height: 1.15; }
+
+/* Entrance animation. */
+@keyframes ap-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+:is(.ap-app, .ap-site) .ap-fade { animation: ap-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+:is(.ap-app, .ap-site) .ap-fade-1 { animation-delay: 0.05s; }
+:is(.ap-app, .ap-site) .ap-fade-2 { animation-delay: 0.1s; }
+:is(.ap-app, .ap-site) .ap-fade-3 { animation-delay: 0.15s; }
+:is(.ap-app, .ap-site) .ap-fade-4 { animation-delay: 0.2s; }
+
+/* Square logo mark (sidebar, marketing / auth / passport headers). */
+:is(.ap-app, .ap-site) .ap-logo-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--green);
+  color: var(--green-foreground);
+  font-weight: 800;
+}
+
+/* Left sidebar (desktop) — its display is driven by `hidden md:flex`. */
+.ap-app .ap-sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 248px;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1.25rem 0.85rem;
+  background: var(--sidebar);
+  border-right: 1px solid var(--sidebar-border);
+  overflow-y: auto;
+}
+
+/* Nav items (sidebar links). */
+.ap-app .ap-navitem {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 14px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  transition: background 0.18s, color 0.18s;
+}
+.ap-app .ap-navitem:hover {
+  background: color-mix(in oklab, var(--accent) 55%, transparent);
+  color: var(--foreground);
+}
+.ap-app .ap-navitem[aria-current="page"] {
+  background: var(--accent);
+  color: var(--foreground);
+}
+.ap-app .ap-navitem svg { width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
+.ap-app .ap-navitem[aria-current="page"] svg { color: var(--green); }
+
+/* Bottom tab bar (mobile) — its display is driven by `flex md:hidden`. */
+.ap-app .ap-tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  justify-content: space-around;
+  align-items: stretch;
+  gap: 0.25rem;
+  padding: 0.4rem 0.5rem calc(0.4rem + env(safe-area-inset-bottom));
+  background: color-mix(in oklab, var(--background) 90%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+}
+.ap-app .ap-tab {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  padding: 0.3rem 0.25rem;
+  border-radius: 12px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.1;
+  text-align: center;
+  color: var(--muted-foreground);
+}
+.ap-app .ap-tab[aria-current="page"],
+.ap-app .ap-tab[aria-current="page"] svg { color: var(--green); }
+.ap-app .ap-tab svg { width: 1.35rem; height: 1.35rem; }
+
+/* User chip in the sidebar foot. */
+.ap-app .ap-userchip {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.7rem;
+  border-radius: 14px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+}
+.ap-app .ap-ava {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+  font-weight: 800;
+  font-size: 0.8rem;
+}

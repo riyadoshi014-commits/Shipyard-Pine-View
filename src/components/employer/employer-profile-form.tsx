@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { ChipPicker } from "@/components/chip-picker";
 import { Field, fieldAria } from "@/components/form/field";
@@ -12,19 +12,30 @@ import type { FormState } from "@/lib/auth/schemas";
 import type { EmployerProfile } from "@/lib/domain";
 import { saveEmployerProfile } from "@/lib/employer/actions";
 import { ACCOMMODATION_SUGGESTIONS, US_STATES } from "@/lib/sample";
+import { useFormDraft } from "@/lib/use-form-draft";
 
 const initial: FormState = {};
 
-export function EmployerProfileForm({ profile }: { profile: EmployerProfile | null }) {
+export function EmployerProfileForm({ profile, fullName }: { profile: EmployerProfile | null; fullName: string }) {
   const [state, action, pending] = useActionState(saveEmployerProfile, initial);
   const e = state.fieldErrors ?? {};
 
+  // The accommodations chip list isn't captured; the typed fields are.
+  const formRef = useRef<HTMLFormElement>(null);
+  const { clear: clearDraft } = useFormDraft({ key: "profile-employer", formRef });
+
   useEffect(() => {
-    if (state.success) toast.success(state.success);
-  }, [state]);
+    if (state.success) {
+      toast.success(state.success);
+      clearDraft();
+    }
+  }, [state, clearDraft]);
 
   return (
-    <form action={action} noValidate className="flex flex-col gap-4">
+    <form ref={formRef} action={action} noValidate className="flex flex-col gap-4">
+      <Field id="full_name" label="Your name" hint="The person managing this account." error={e.full_name}>
+        <Input id="full_name" name="full_name" defaultValue={fullName} autoComplete="name" {...fieldAria("full_name", { hint: true, error: e.full_name })} />
+      </Field>
       <Field id="company_name" label="Company name" error={e.company_name}>
         <Input id="company_name" name="company_name" defaultValue={profile?.company_name ?? ""} autoComplete="organization" {...fieldAria("company_name", { error: e.company_name })} />
       </Field>

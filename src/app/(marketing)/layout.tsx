@@ -5,12 +5,15 @@ const LINKS = [
   { href: "/about", label: "About us" },
   { href: "/privacy", label: "Privacy policy" },
   { href: "/terms", label: "Terms and conditions" },
+  { href: "/terms/employee", label: "Job Seeker Agreement" },
+  { href: "/terms/employer", label: "Employer & Operator Agreement" },
+  { href: "/terms/mentor", label: "Mentor Agreement" },
   { href: "https://TheInclusionRevolution.org", label: "Inclusion Revolution" },
 ];
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <div className="ap-site flex flex-1 flex-col">
       <SiteHeader />
       <main id="main" className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
         {children}
@@ -36,6 +39,6 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
           </nav>
         </div>
       </footer>
-    </>
+    </div>
   );
 }

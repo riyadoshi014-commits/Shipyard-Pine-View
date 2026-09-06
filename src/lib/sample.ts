@@ -207,7 +207,8 @@ export const MATCHES: SampleMatch[] = JOBS.flatMap((job) =>
   }),
 ).sort((a, b) => b.score - a.score);
 
-export const SITE_URL = "https://www.connectable.work";
+// Audit F9 — one canonical host (apex), single source of truth in @/lib/site.
+export { SITE_URL } from "@/lib/site";
 
 export const REMOTE_LABEL: Record<RemotePreference, string> = {
   remote: "Remote",

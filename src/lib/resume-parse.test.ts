@@ -54,7 +54,7 @@ describe("parseResumeFromText", () => {
     // Never invents facts: the system prompt sent to the model must say so.
     const call = mockCreate.mock.calls[0][0];
     const systemText = call.system[0].text as string;
-    expect(systemText).toMatch(/only what this resume actually states/i);
+    expect(systemText).toMatch(/only what this\s+resume actually states/i);
     expect(systemText).toMatch(/Do not add/i);
   });
 

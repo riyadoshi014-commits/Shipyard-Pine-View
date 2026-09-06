@@ -5,6 +5,7 @@ import { listField, optionalMoney } from "@/lib/profile/schemas";
 export const EMPLOYER_LIST_FIELDS = ["accommodations_offered"];
 
 export const employerProfileFormSchema = z.object({
+  full_name: z.string().trim().min(1, "Please tell us your name.").max(80, "That name is too long."),
   company_name: z.string().trim().min(1, "Please add your company name.").max(120),
   description: z.string().trim().max(1000, "Keep it under 1000 characters."),
   website: z

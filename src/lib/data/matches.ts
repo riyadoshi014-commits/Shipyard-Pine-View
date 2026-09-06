@@ -119,7 +119,8 @@ export async function getMatchesForEmployee(userId: string): Promise<EmployeeMat
   const out: EmployeeMatch[] = [];
   for (const m of matches) {
     const job = jobById.get(m.job_id as string);
-    if (!job) continue;
+    // Skip jobs that are gone or no longer open, even if a stale match row survives.
+    if (!job || job.status !== "open") continue;
     out.push({
       matchId: m.id as string,
       score: m.score as number,

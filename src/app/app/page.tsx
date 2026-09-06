@@ -26,11 +26,30 @@ export default async function DashboardPage() {
       supabase.from("matches").select("id", { count: "exact", head: true }).eq("employee_id", profile.userId),
     ]);
     const status = summarizeStatus(ep, priv);
+    const abilityCount = ep?.abilities?.length ?? 0;
     return (
       <>
-        <PageHeader title={`Hi ${first}`} description="Here is where you are." />
+        <PageHeader kicker="Your dashboard" title={`Hi ${first}`} description="Here is where you are." />
+
+        <div className="ap-stats ap-fade">
+          <div className="ap-stat">
+            <div className="ap-stat-val">{ep?.passport_public ? "Live" : "Draft"}</div>
+            <div className="ap-label mt-0.5">Passport</div>
+          </div>
+          <div className="ap-stat">
+            <div className="ap-stat-val">{count ?? 0}</div>
+            <div className="ap-label mt-0.5">Matches</div>
+          </div>
+          <div className="ap-stat">
+            <div className="ap-stat-val">{abilityCount}</div>
+            <div className="ap-label mt-0.5">Abilities</div>
+          </div>
+        </div>
+
+        <p className="ap-rule">Next steps</p>
+
         <div className="grid gap-4 sm:grid-cols-2">
-          <Card>
+          <Card className="ap-accent ap-accent-green ap-fade ap-fade-1">
             <CardHeader>
               <CardTitle>Your Ability Passport</CardTitle>
               <CardDescription>{ep?.passport_public ? "Live. Anyone with the link can see it." : status}</CardDescription>
@@ -46,7 +65,7 @@ export default async function DashboardPage() {
               </Button>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="ap-accent ap-accent-purple ap-fade ap-fade-2">
             <CardHeader>
               <CardTitle>Matches</CardTitle>
               <CardDescription>
@@ -66,8 +85,8 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <PageHeader title={`Hi ${first}`} description="Thank you for mentoring." />
-      <Card>
+      <PageHeader kicker="Your dashboard" title={`Hi ${first}`} description="Thank you for mentoring." />
+      <Card className="ap-accent ap-accent-coral ap-fade">
         <CardHeader>
           <CardTitle>Mentor tools are coming next</CardTitle>
           <CardDescription>Soon you will see your mentees here and help keep their Passports up to date.</CardDescription>

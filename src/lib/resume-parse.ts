@@ -76,15 +76,19 @@ const EXTRACT_TOOL: Anthropic.Tool = {
   strict: true,
 };
 
-const SYSTEM_PROMPT = `Extract only what this resume actually states. Do not infer a skill from a
-job title alone unless the resume describes doing it. Do not add
-evaluative language ("excellent", "highly skilled", "detail-oriented")
-unless those exact words appear. If a field isn't supported by the text,
-omit it rather than guess. Never invent an employer, a date, or an award
-that isn't written down.
+const SYSTEM_PROMPT = `Turn this resume into structured profile fields, extracting only what this
+resume actually states.
 
-Write "abilities" in plain, concrete language a job coach would use --
-what the person actually did, not resume buzzwords.`;
+Never infer a skill from a job title alone -- only from experience the
+resume describes doing. Do not add evaluative language ("excellent",
+"highly skilled", "detail-oriented") unless those exact words appear in the
+text. Never invent an employer, a date, an award, or a credential that
+isn't written down. If a field isn't supported by the resume, leave it out
+rather than guess.
+
+Write abilities the way a job coach would say them out loud -- the concrete
+thing the person did ("stocking shelves"), not resume phrasing ("inventory
+management").`;
 
 /**
  * text is the resume content already extracted to plain text (PDF text

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { JobForm } from "@/components/employer/job-form";
 import { PageHeader } from "@/components/page-header";
 import { requireRole } from "@/lib/data/profile";
@@ -16,7 +17,7 @@ export default async function NewJobPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <PageHeader title="Post a job" description="Describe the work in plain language. Candidates are matched on abilities, not titles." />
+      <PageHeader kicker="New job" title="Post a job" description="Describe the work in plain language. Candidates are matched on abilities, not titles." />
       <JobForm
         job={null}
         defaults={{
@@ -25,6 +26,13 @@ export default async function NewJobPage() {
           accommodations_offered: company?.accommodations_offered ?? [],
         }}
       />
+      <p className="mt-6 text-sm text-muted-foreground">
+        Posting a job means you agree to the{" "}
+        <Link href="/terms/employer" className="font-bold text-green underline">
+          Employer &amp; Operator Agreement
+        </Link>
+        , including considering matched candidates fairly and providing the accommodations you list.
+      </p>
     </div>
   );
 }

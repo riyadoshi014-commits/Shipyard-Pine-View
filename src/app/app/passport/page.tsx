@@ -19,6 +19,7 @@ export default async function MyPassportPage() {
   return (
     <>
       <PageHeader
+        kicker="Passport"
         title="My Ability Passport"
         description={passport?.isPublic ? "Live. Anyone with the link or QR code can see it." : "Not published yet. Only you can see this preview."}
       >
@@ -38,7 +39,7 @@ export default async function MyPassportPage() {
       </PageHeader>
 
       {!ready && (
-        <p className="mb-6 rounded-md bg-yellow-soft p-3">
+        <p className="mb-6 rounded-2xl bg-yellow-soft p-4">
           Add a headline and at least one ability before publishing.{" "}
           <Link href="/app/profile" className="font-bold text-green underline">
             Edit profile

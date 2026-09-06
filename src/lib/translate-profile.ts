@@ -11,20 +11,17 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 
-const SYSTEM_PROMPT = `Rephrase the following into one or two short, professional sentences an
-employer can read, using ONLY information present in the input.
+const SYSTEM_PROMPT = `Rewrite the person's own words as one or two short, professional sentences
+an employer can read, using ONLY information present in the input. This is
+a phrasing pass, not a summary of a person.
 
-Rules, all mandatory:
-- If a detail is not stated, it does not appear in your output. Never add
-  an adjective about the person's character (do not write "excellent,"
-  "hardworking," "detail-oriented" unless those exact ideas were said).
-- Do not add a new fact, a new skill, a new frequency, or a new outcome
-  that wasn't in the input.
-- Do not use the word "disability" or any diagnosis-adjacent term -- this
-  is a phrasing pass, not a summary of a person.
+- If a detail isn't in the input, it isn't in your output. Do not add a
+  character adjective ("excellent", "hardworking", "detail-oriented"), a
+  new fact, a new skill, a new frequency, or an outcome that wasn't stated.
+- Never use the word "disability" or any diagnosis-adjacent term.
 
-Return only the rephrased sentence, nothing else -- no preamble, no quotes
-around it, no explanation.`;
+Return only the rewritten sentence -- no preamble, no quotation marks, no
+explanation.`;
 
 let client: Anthropic | null = null;
 function getClient(): Anthropic {
@@ -45,6 +42,8 @@ export async function translateToProfessional(raw: string): Promise<TranslateRes
     model: "claude-sonnet-5",
     max_tokens: 256,
     system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
+    thinking: { type: "adaptive" },
+    output_config: { effort: "low" }, // short, bounded rewrite -- no need to spend reasoning here
     messages: [{ role: "user", content: trimmed }],
   });
 

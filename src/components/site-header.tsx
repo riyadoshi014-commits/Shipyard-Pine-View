@@ -3,21 +3,24 @@ import { Button } from "@/components/ui/button";
 
 export function SiteHeader() {
   return (
-    <header className="border-b bg-background">
-      <nav aria-label="Main" className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-4">
-        <Link href="/" className="text-2xl font-bold text-green">
-          ConnectAble
+    <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur-md">
+      <nav aria-label="Main" className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-3.5">
+        <Link href="/" className="flex items-center gap-2">
+          <span className="ap-logo-mark" aria-hidden="true">
+            C
+          </span>
+          <span className="text-xl font-extrabold tracking-tight text-green">ConnectAble</span>
         </Link>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="ghost" size="lg" render={<Link href="/about" />}>
+          <Button variant="ghost" size="lg" className="rounded-full" render={<Link href="/about" />}>
             About
           </Button>
-          <Button variant="outline" size="lg" render={<Link href="/login" />}>
+          <Button variant="outline" size="lg" className="rounded-full" render={<Link href="/login" />}>
             Log in
           </Button>
           <Button
             size="lg"
-            className="bg-coral-strong text-coral-strong-foreground hover:bg-coral-strong/90"
+            className="rounded-full bg-coral-strong text-coral-strong-foreground shadow-[var(--ap-shadow-md)] hover:bg-coral-strong/90"
             render={<Link href="/signup" />}
           >
             Get started

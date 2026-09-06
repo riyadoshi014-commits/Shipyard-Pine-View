@@ -53,11 +53,51 @@ export async function runMatching(scope: MatchScope = {}): Promise<number> {
   return rows.length;
 }
 
+/**
+ * Removes match rows that should no longer exist. `runMatching` only ever
+ * upserts (open jobs x searchable employees), so without this a passport that
+ * is unpublished, or a job that is closed, keeps its stale rows and keeps
+ * showing up in the other side's list.
+ */
+export async function clearMatches(scope: MatchScope): Promise<void> {
+  const admin = createAdminClient();
+  try {
+    if (scope.employeeId) {
+      const { error } = await admin.from("matches").delete().eq("employee_id", scope.employeeId);
+      if (error) throw error;
+    }
+    if (scope.jobIds?.length) {
+      const { error } = await admin.from("matches").delete().in("job_id", scope.jobIds);
+      if (error) throw error;
+    }
+  } catch (e) {
+    console.error("clearMatches failed", scope, e);
+  }
+}
+
 /** Best-effort wrapper for server actions: a matching failure never fails a save. */
 export async function tryRunMatching(scope: MatchScope = {}): Promise<void> {
   try {
-    await runMatching(scope);
+    const count = await runMatching(scope);
+    if (count === 0) {
+      console.warn(
+        "matching produced 0 rows for",
+        JSON.stringify(scope),
+        "- expected when there are no open jobs or the profile is not searchable yet",
+      );
+    }
   } catch (e) {
-    console.error("matching failed", e);
+    const message = e instanceof Error ? e.message : String(e);
+    if (/invalid api key|jwt|not authorized|permission denied/i.test(message)) {
+      console.error(
+        "matching failed: the Supabase service-role credential is being rejected. " +
+          "Check SUPABASE_SECRET_KEY in .env against the current key in the Supabase " +
+          "dashboard (Settings -> API Keys). Until this is fixed, publishing a Passport " +
+          "will never create any matches.",
+        e,
+      );
+    } else {
+      console.error("matching failed", e);
+    }
   }
 }

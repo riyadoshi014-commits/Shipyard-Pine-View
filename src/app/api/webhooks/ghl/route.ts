@@ -6,14 +6,16 @@ import { generateSmsReply } from "@/lib/comms/sms-agent";
 
 /**
  * Inbound SMS from GoHighLevel's Conversations webhook. Point the
- * sub-account's inbound webhook at https://connectable.work/api/webhooks/ghl.
+ * sub-account's inbound webhook at https://connectable.work/api/webhooks/ghl
+ * and include the shared secret (see HIGHLEVEL_INBOUND_WEBHOOK_SECRET below)
+ * either as an `x-webhook-secret` header or a `?secret=` query param.
  *
  * NOTE: field names below follow GHL's documented Conversations webhook
  * shape, but should be checked against a real test message once the webhook
  * is actually configured in the dashboard -- adjust the destructuring to
  * match what the real payload sends before relying on it for a demo.
  *
- * Two rules that matter on stage:
+ * Rules that matter on stage:
  *  - Return 200 immediately. GHL retries any non-2xx, and generating a
  *    reply inline would mean a judge sees the same text three times.
  *    `after()` runs the reply generation once the response has already
@@ -22,9 +24,26 @@ import { generateSmsReply } from "@/lib/comms/sms-agent";
  *    response (the function can freeze or be torn down right after return).
  *  - De-duplicate on the provider's own message id (a retry must not
  *    enqueue a second reply) -- enforced by the unique constraint on
- *    sms_messages.provider_message_id in the migration, not just app logic.
+ *    sms_messages.provider_message_id in the migration. NOTE: Postgres
+ *    UNIQUE allows many NULLs, so if the provider id is missing we cannot
+ *    de-duplicate; we log and process once rather than risk a reply storm.
+ *  - Authenticate the caller. This endpoint sends real SMS and spends real
+ *    API budget on whatever `phone`/`message` it is handed, so an unsigned
+ *    request must not be able to drive it.
  */
 export async function POST(req: NextRequest) {
+  const expectedSecret = process.env.HIGHLEVEL_INBOUND_WEBHOOK_SECRET;
+  if (expectedSecret) {
+    const provided =
+      req.headers.get("x-webhook-secret") ?? req.nextUrl.searchParams.get("secret") ?? "";
+    if (provided !== expectedSecret) {
+      console.warn("ghl webhook: rejected a request with a missing/incorrect secret");
+      return NextResponse.json({ ok: true }); // ack so GHL does not retry an attacker's payload for us
+    }
+  } else {
+    console.warn("ghl webhook: HIGHLEVEL_INBOUND_WEBHOOK_SECRET is not set -- endpoint is unauthenticated");
+  }
+
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ ok: true });
 
@@ -32,6 +51,9 @@ export async function POST(req: NextRequest) {
   const phone: string | undefined = body.phone ?? body.contactPhone;
   const text: string | undefined = body.message ?? body.body;
   if (!phone || !text) return NextResponse.json({ ok: true });
+  if (!messageId) {
+    console.warn("ghl webhook: inbound message has no provider id -- cannot de-duplicate this one");
+  }
 
   const supabase = createAdminClient();
 
@@ -49,8 +71,14 @@ export async function POST(req: NextRequest) {
     .from("sms_messages")
     .insert({ conversation_id: conversation.id, direction: "inbound", body: text, provider_message_id: messageId });
   if (insertError) {
-    // Unique violation on provider_message_id means this is a GHL retry of
-    // a message we already processed -- ack and do nothing further.
+    if (insertError.code === "23505") {
+      // Unique violation on provider_message_id: this is a GHL retry of a
+      // message we already processed -- ack and do nothing further.
+      return NextResponse.json({ ok: true });
+    }
+    // Any other write failure (e.g. the body length check) is a real error,
+    // not a retry. Ack so GHL stops hammering us, but make it visible.
+    console.error("sms_messages insert failed", insertError);
     return NextResponse.json({ ok: true });
   }
 
@@ -58,19 +86,49 @@ export async function POST(req: NextRequest) {
     try {
       const { data: history } = await supabase
         .from("sms_messages")
-        .select("direction, body")
+        .select("provider_message_id, direction, body")
         .eq("conversation_id", conversation.id)
         .order("created_at", { ascending: true })
         .limit(20);
 
-      const historyForAgent = (history ?? [])
-        .slice(0, -1) // drop the inbound message we just inserted -- it's passed separately
-        .map((m) => ({ role: (m.direction === "inbound" ? "user" : "assistant") as "user" | "assistant", text: m.body }));
+      const rows = history ?? [];
+      // Drop the inbound message we just inserted -- it's passed to the agent
+      // separately. Match it by id when we have one; otherwise fall back to
+      // dropping the last row (which, ordered ascending, is the one we added).
+      const priorRows = messageId
+        ? rows.filter((m) => m.provider_message_id !== messageId)
+        : rows.slice(0, -1);
+      const historyForAgent = priorRows.map((m) => ({
+        role: (m.direction === "inbound" ? "user" : "assistant") as "user" | "assistant",
+        text: m.body,
+      }));
 
       const reply = await generateSmsReply(text, historyForAgent);
+
+      if (reply.needsHuman) {
+        // Deterministic distress markers fired. Flag the conversation for a
+        // human and alert -- the reply the model was told to produce is a
+        // warm hand-off line, so it's still safe to send, but a person must
+        // pick this up.
+        console.error("[SMS ESCALATION] distress markers in inbound message", {
+          conversationId: conversation.id,
+        });
+        // Don't let a flag-write problem (e.g. the needs_human migration not
+        // applied yet) stop the warm hand-off reply from going out.
+        const { error: flagError } = await supabase
+          .from("sms_conversations")
+          .update({ needs_human: true, needs_human_at: new Date().toISOString() })
+          .eq("id", conversation.id);
+        if (flagError) console.error("could not flag sms_conversation for a human", flagError);
+      }
+
       if (!reply.text) return;
 
       const sendResult = await sendSms(phone, reply.text);
+      if (!sendResult.ok) {
+        console.error("SMS send failed", sendResult.error);
+        return;
+      }
       await supabase.from("sms_messages").insert({
         conversation_id: conversation.id,
         direction: "outbound",

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Atkinson_Hyperlegible } from "next/font/google";
+import { ConsentBanner } from "@/components/consent-banner";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -35,6 +36,7 @@ export default function RootLayout({
           Skip to main content
         </a>
         {children}
+        <ConsentBanner />
         <Toaster richColors closeButton />
       </body>
     </html>

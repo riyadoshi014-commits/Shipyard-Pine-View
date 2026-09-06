@@ -23,11 +23,16 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <>
-      <header className="border-b bg-background">
+    <div className="ap-site flex flex-1 flex-col">
+      <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <span className="text-2xl font-bold text-green">ConnectAble</span>
-          <Button variant="ghost" render={<Link href="/app" />}>
+          <span className="flex items-center gap-2">
+            <span className="ap-logo-mark" aria-hidden="true">
+              C
+            </span>
+            <span className="text-2xl font-extrabold tracking-tight text-green">ConnectAble</span>
+          </span>
+          <Button variant="ghost" className="rounded-full" render={<Link href="/app" />}>
             Skip for now
           </Button>
         </div>
@@ -41,6 +46,6 @@ export default async function OnboardingPage() {
           </div>
         )}
       </main>
-    </>
+    </div>
   );
 }

@@ -24,13 +24,16 @@ export default async function PassportPage({ params }: Params) {
   const url = `${SITE_URL}/p/${slug}`;
 
   return (
-    <>
-      <header className="border-b bg-background print:hidden">
+    <div className="ap-site flex flex-1 flex-col">
+      <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur-md print:hidden">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
-          <Link href="/" className="text-2xl font-bold text-green">
-            ConnectAble
+          <Link href="/" className="flex items-center gap-2">
+            <span className="ap-logo-mark" aria-hidden="true">
+              C
+            </span>
+            <span className="text-2xl font-extrabold tracking-tight text-green">ConnectAble</span>
           </Link>
-          <Button variant="outline" render={<Link href="/signup" />}>
+          <Button variant="outline" className="rounded-full" render={<Link href="/signup" />}>
             Get your own Passport
           </Button>
         </div>
@@ -39,6 +42,6 @@ export default async function PassportPage({ params }: Params) {
         <PassportCard person={passport} />
         <PassportShare url={url} />
       </main>
-    </>
+    </div>
   );
 }

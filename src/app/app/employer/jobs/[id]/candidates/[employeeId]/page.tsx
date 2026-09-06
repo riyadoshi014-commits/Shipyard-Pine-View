@@ -30,7 +30,7 @@ export default async function CandidatePage({ params }: { params: Promise<{ id: 
 
   return (
     <>
-      <PageHeader title={match.fullName} description={`Candidate for ${j.title}`}>
+      <PageHeader kicker="Candidate" title={match.fullName} description={`Candidate for ${j.title}`}>
         <Button variant="outline" render={<Link href={back} />}>
           Back to candidates
         </Button>
@@ -58,7 +58,7 @@ export default async function CandidatePage({ params }: { params: Promise<{ id: 
           }}
         />
         <div className="flex flex-col gap-4">
-          <Card>
+          <Card className="ap-fade">
             <CardHeader className="items-center">
               <MatchRing score={match.score} size={96} />
             </CardHeader>
@@ -66,7 +66,7 @@ export default async function CandidatePage({ params }: { params: Promise<{ id: 
               <BreakdownList breakdown={match.breakdown} />
             </CardContent>
           </Card>
-          <Card>
+          <Card className="ap-fade ap-fade-1">
             <CardHeader>
               <CardTitle>Accommodations they need</CardTitle>
             </CardHeader>

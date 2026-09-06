@@ -35,7 +35,8 @@ export function OnboardingClient({ userId, fullName: knownName, siteUrl, voiceAv
         }}
         className="flex max-w-md flex-col gap-4"
       >
-        <h1 className="text-3xl font-bold">Welcome</h1>
+        <p className="ap-label">Passport guide</p>
+        <h1 className="text-3xl font-extrabold tracking-tight">Welcome</h1>
         <label htmlFor="first-name" className="text-base font-bold">
           What should the guide call you?
         </label>
@@ -50,7 +51,8 @@ export function OnboardingClient({ userId, fullName: knownName, siteUrl, voiceAv
   if (!mode) {
     return (
       <div className="flex flex-col gap-6">
-        <h1 className="text-3xl font-bold">Welcome, {first}</h1>
+        <p className="ap-label">Passport guide</p>
+        <h1 className="text-3xl font-extrabold tracking-tight">Welcome, {first}</h1>
         <p>
           Your Passport Guide will ask a few easy questions and build your Ability Passport as you go. How would you
           like to talk?
@@ -89,7 +91,8 @@ export function OnboardingClient({ userId, fullName: knownName, siteUrl, voiceAv
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-3xl font-bold">Let&apos;s build your Passport</h1>
+      <p className="ap-label">Passport guide</p>
+      <h1 className="text-3xl font-extrabold tracking-tight">Let&apos;s build your Passport</h1>
       {mode === "voice" ? (
         <PassportGuide userId={userId ?? "local-user"} fullName={name} siteUrl={siteUrl} mode="voice" storage={storage} />
       ) : (

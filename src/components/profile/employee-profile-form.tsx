@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { ChipPicker } from "@/components/chip-picker";
 import { Field, fieldAria } from "@/components/form/field";
@@ -12,6 +12,7 @@ import type { FormState } from "@/lib/auth/schemas";
 import type { EmployeePrivate, EmployeeProfile } from "@/lib/domain";
 import { saveEmployeeProfile } from "@/lib/profile/actions";
 import { ABILITY_SUGGESTIONS, ACCOMMODATION_SUGGESTIONS, AVAILABILITY_OPTIONS, US_STATES } from "@/lib/sample";
+import { useFormDraft } from "@/lib/use-form-draft";
 
 const REMOTE_OPTIONS = [
   { value: "in_person", label: "In person" },
@@ -19,22 +20,37 @@ const REMOTE_OPTIONS = [
   { value: "either", label: "Either is fine" },
 ] as const;
 
-type Props = { profile: EmployeeProfile | null; priv: Pick<EmployeePrivate, "salary_min" | "salary_max"> | null };
+type Props = {
+  profile: EmployeeProfile | null;
+  priv: Pick<EmployeePrivate, "salary_min" | "salary_max"> | null;
+  fullName: string;
+};
 
 const initial: FormState = {};
 
-export function EmployeeProfileForm({ profile, priv }: Props) {
+export function EmployeeProfileForm({ profile, priv, fullName }: Props) {
   const [state, action, pending] = useActionState(saveEmployeeProfile, initial);
   const e = state.fieldErrors ?? {};
 
+  // Chip lists aren't captured; every typed field (name, headline, city,
+  // state, where-you-work, story, pay) is.
+  const formRef = useRef<HTMLFormElement>(null);
+  const { clear: clearDraft } = useFormDraft({ key: "profile-employee", formRef });
+
   useEffect(() => {
-    if (state.success) toast.success(state.success);
-  }, [state]);
+    if (state.success) {
+      toast.success(state.success);
+      clearDraft();
+    }
+  }, [state, clearDraft]);
 
   return (
-    <form action={action} noValidate className="flex flex-col gap-10">
+    <form ref={formRef} action={action} noValidate className="flex flex-col gap-10">
       <section className="flex flex-col gap-4">
         <h2 className="text-xl font-bold">Basics</h2>
+        <Field id="full_name" label="Your name" hint="This shows on your Ability Passport." error={e.full_name}>
+          <Input id="full_name" name="full_name" defaultValue={fullName} autoComplete="name" {...fieldAria("full_name", { hint: true, error: e.full_name })} />
+        </Field>
         <Field id="headline" label="One line about you at work" hint='For example "Friendly team member who loves organizing".' error={e.headline}>
           <Input id="headline" name="headline" defaultValue={profile?.headline ?? ""} {...fieldAria("headline", { hint: true, error: e.headline })} />
         </Field>

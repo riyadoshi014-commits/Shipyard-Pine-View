@@ -17,6 +17,7 @@ export const optionalMoney = z.preprocess(
 
 export const employeeProfileFormSchema = z
   .object({
+    full_name: z.string().trim().min(1, "Please tell us your name.").max(80, "That name is too long."),
     headline: z.string().trim().max(120, "Keep the headline under 120 characters."),
     city: z.string().trim().max(80),
     state: z.string().trim().toUpperCase().max(2),

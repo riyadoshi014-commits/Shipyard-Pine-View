@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { ChipPicker } from "@/components/chip-picker";
 import { JobDescriptionAssist } from "@/components/employer/job-description-assist";
 import { Field, fieldAria } from "@/components/form/field";
@@ -13,6 +13,7 @@ import type { Job } from "@/lib/domain";
 import { saveJob } from "@/lib/employer/actions";
 import type { ParsedJobTasks } from "@/lib/job-task-parse";
 import { ABILITY_SUGGESTIONS, ACCOMMODATION_SUGGESTIONS, AVAILABILITY_OPTIONS, US_STATES } from "@/lib/sample";
+import { useFormDraft } from "@/lib/use-form-draft";
 
 type Props = { job: Job | null; defaults: { city: string; state: string; accommodations_offered: string[] } };
 
@@ -21,6 +22,13 @@ const initial: FormState = {};
 export function JobForm({ job, defaults }: Props) {
   const [state, action, pending] = useActionState(saveJob, initial);
   const e = state.fieldErrors ?? {};
+
+  // Only keep a draft for a brand-new posting -- editing an existing job
+  // already has its saved values, and its chip re-seed logic would fight a
+  // restore. Chip lists (abilities/accommodations/shifts) aren't captured;
+  // the text fields, which are where the typing goes, are.
+  const formRef = useRef<HTMLFormElement>(null);
+  const { clear: clearDraft } = useFormDraft({ key: "job-new", formRef, enabled: !job });
 
   // Seeded from the manual defaults, then re-seeded (with a bumped key to
   // force ChipPicker/Input to pick up the new `initial`/`value`) whenever
@@ -54,7 +62,7 @@ export function JobForm({ job, defaults }: Props) {
   }
 
   return (
-    <form action={action} noValidate className="flex flex-col gap-8">
+    <form ref={formRef} action={action} onSubmit={() => clearDraft()} noValidate className="flex flex-col gap-8">
       {job && <input type="hidden" name="id" value={job.id} />}
       <JobDescriptionAssist onAccept={acceptSuggestions} />
       <Field id="title" label="Job title" error={e.title}>
@@ -124,6 +132,14 @@ export function JobForm({ job, defaults }: Props) {
         </Field>
       </div>
       <p className="text-sm text-muted-foreground">Job seekers see this pay range. You never see theirs.</p>
+      {job && (
+        <Field id="status" label="Is this job open?" hint="Open jobs show up for candidates. Closed jobs are hidden and stop matching.">
+          <NativeSelect id="status" name="status" defaultValue={job.status}>
+            <option value="open">Open for candidates</option>
+            <option value="closed">Closed</option>
+          </NativeSelect>
+        </Field>
+      )}
       {state.error && (
         <p role="alert" className="rounded-md bg-coral-soft p-3 font-bold text-coral-foreground">
           {state.error}

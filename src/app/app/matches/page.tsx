@@ -18,9 +18,9 @@ export default async function MatchesPage() {
 
   return (
     <>
-      <PageHeader title="Your matches" description="Ranked by how well the job and your Passport line up." />
+      <PageHeader kicker="Matches" title="Your matches" description="Ranked by how well the job and your Passport line up." />
       {matches.length === 0 ? (
-        <Card>
+        <Card className="ap-accent ap-accent-muted">
           <CardContent className="flex flex-col items-start gap-3 p-6">
             <p className="font-bold">No matches yet.</p>
             <p className="text-muted-foreground">Publish your Passport and add your abilities so employers can find you.</p>
@@ -31,7 +31,11 @@ export default async function MatchesPage() {
         <ul className="flex flex-col gap-4">
           {matches.map((m) => (
             <li key={m.matchId}>
-              <Card>
+              <Card
+                className={`ap-fade ap-accent ${
+                  m.score >= 75 ? "ap-accent-green" : m.score >= 50 ? "ap-accent-yellow" : "ap-accent-muted"
+                }`}
+              >
                 <CardContent className="grid gap-6 p-6 md:grid-cols-[auto_1fr_auto]">
                   <MatchRing score={m.score} />
                   <div className="flex flex-col gap-2">

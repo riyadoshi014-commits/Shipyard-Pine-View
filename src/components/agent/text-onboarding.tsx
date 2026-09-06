@@ -5,6 +5,7 @@ import Link from "next/link";
 import type Anthropic from "@anthropic-ai/sdk";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Send } from "lucide-react";
+import { toast } from "sonner";
 import { PassportCard } from "@/components/passport/passport-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,12 +13,22 @@ import { buildPassportClientTools } from "@/lib/agent/client-tools";
 import { createLocalStore } from "@/lib/agent/local-store";
 import { summarizeStatus } from "@/lib/agent/profile-status";
 import { firstName } from "@/lib/agent/text";
+import { hasDraftConsent } from "@/lib/consent";
 import type { EmployeePrivate, EmployeeProfile } from "@/lib/domain";
 import type { SampleEmployee } from "@/lib/sample";
 import { createClient } from "@/lib/supabase/client";
 import { Transcript, type TranscriptLine } from "./transcript";
 
 export type GuideStorage = "supabase" | "local";
+
+/**
+ * The typed conversation is kept on-device (consent-gated) so closing the
+ * tab mid-onboarding doesn't lose the thread. The Passport answers
+ * themselves are already saved by the tools as they go; this only restores
+ * the chat so the person can pick up where they left off.
+ */
+const CHAT_DRAFT_KEY = "connectable.draft.onboarding-chat";
+type ChatDraft = { messages: Anthropic.MessageParam[]; lines: TranscriptLine[]; started: boolean };
 
 type Props = { userId: string; fullName: string; siteUrl: string; storage: GuideStorage };
 type Snapshot = { profile: Partial<EmployeeProfile> | null; priv: Partial<EmployeePrivate> | null };
@@ -87,6 +98,56 @@ export function TextOnboarding({ userId, fullName, siteUrl, storage }: Props) {
       active = false;
     };
   }, [client, userId]);
+
+  // Restore an interrupted conversation once, on mount.
+  useEffect(() => {
+    if (!hasDraftConsent()) return;
+    try {
+      const raw = window.localStorage.getItem(CHAT_DRAFT_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as ChatDraft;
+      if (saved.started && Array.isArray(saved.messages) && saved.messages.length > 0) {
+        setMessages(saved.messages);
+        setLines(Array.isArray(saved.lines) ? saved.lines : []);
+        setStarted(true);
+        toast("We brought back your conversation.", {
+          action: {
+            label: "Start over",
+            onClick: () => {
+              try {
+                window.localStorage.removeItem(CHAT_DRAFT_KEY);
+              } catch {
+                /* ignore */
+              }
+              window.location.reload();
+            },
+          },
+        });
+      }
+    } catch {
+      /* corrupt or unavailable storage -- start fresh */
+    }
+  }, []);
+
+  // Keep the on-device copy current while the conversation is live.
+  useEffect(() => {
+    if (!hasDraftConsent() || !started) return;
+    try {
+      window.localStorage.setItem(CHAT_DRAFT_KEY, JSON.stringify({ messages, lines, started } satisfies ChatDraft));
+    } catch {
+      /* private mode / quota -- keep going in memory */
+    }
+  }, [messages, lines, started]);
+
+  // Once the Passport is published, the conversation is done -- drop the draft.
+  useEffect(() => {
+    if (!publishedUrl) return;
+    try {
+      window.localStorage.removeItem(CHAT_DRAFT_KEY);
+    } catch {
+      /* ignore */
+    }
+  }, [publishedUrl]);
 
   const tools = useMemo(() => buildPassportClientTools(client, userId, { siteUrl, fullName }), [client, userId, siteUrl, fullName]);
 

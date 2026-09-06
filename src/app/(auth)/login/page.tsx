@@ -12,7 +12,8 @@ export default async function LoginPage({
   const { next, error } = await searchParams;
   return (
     <>
-      <h1 className="mb-6 text-3xl font-bold">Welcome back</h1>
+      <p className="ap-label mb-1">Log in</p>
+      <h1 className="mb-6 text-3xl font-extrabold tracking-tight">Welcome back</h1>
       <LoginForm next={next} initialError={error ? friendlyAuthError(error) : undefined} />
       <p className="mt-6 text-sm">
         New here?{" "}
