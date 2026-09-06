@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { ChipPicker } from "@/components/chip-picker";
+import { JobDescriptionAssist } from "@/components/employer/job-description-assist";
 import { Field, fieldAria } from "@/components/form/field";
 import { NativeSelect } from "@/components/form/native-select";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { FormState } from "@/lib/auth/schemas";
 import type { Job } from "@/lib/domain";
 import { saveJob } from "@/lib/employer/actions";
+import type { ParsedJobTasks } from "@/lib/job-task-parse";
 import { ABILITY_SUGGESTIONS, ACCOMMODATION_SUGGESTIONS, AVAILABILITY_OPTIONS, US_STATES } from "@/lib/sample";
 
 type Props = { job: Job | null; defaults: { city: string; state: string; accommodations_offered: string[] } };
@@ -20,24 +22,77 @@ export function JobForm({ job, defaults }: Props) {
   const [state, action, pending] = useActionState(saveJob, initial);
   const e = state.fieldErrors ?? {};
 
+  // Seeded from the manual defaults, then re-seeded (with a bumped key to
+  // force ChipPicker/Input to pick up the new `initial`/`value`) whenever
+  // JobDescriptionAssist suggestions are accepted. Manual edits after that
+  // still work normally -- this only changes what the fields start from.
+  const [title, setTitle] = useState(job?.title ?? "");
+  const [abilitiesSeed, setAbilitiesSeed] = useState(job?.abilities_required ?? []);
+  const [accommodationsSeed, setAccommodationsSeed] = useState(job?.accommodations_offered ?? defaults.accommodations_offered);
+  const [seedVersion, setSeedVersion] = useState(0);
+
+  function acceptSuggestions(suggestion: ParsedJobTasks) {
+    if (suggestion.suggestedTitle) setTitle(suggestion.suggestedTitle);
+    const mergeUnique = (current: string[], additions: string[]) => {
+      const seen = new Set(current.map((s) => s.toLowerCase()));
+      const merged = current.slice();
+      for (const a of additions) {
+        if (!seen.has(a.toLowerCase())) {
+          seen.add(a.toLowerCase());
+          merged.push(a);
+        }
+      }
+      return merged;
+    };
+    if (suggestion.suggestedAbilities.length > 0) {
+      setAbilitiesSeed((prev) => mergeUnique(prev, suggestion.suggestedAbilities));
+    }
+    if (suggestion.suggestedAccommodations.length > 0) {
+      setAccommodationsSeed((prev) => mergeUnique(prev, suggestion.suggestedAccommodations));
+    }
+    setSeedVersion((v) => v + 1);
+  }
+
   return (
     <form action={action} noValidate className="flex flex-col gap-8">
       {job && <input type="hidden" name="id" value={job.id} />}
+      <JobDescriptionAssist onAccept={acceptSuggestions} />
       <Field id="title" label="Job title" error={e.title}>
-        <Input id="title" name="title" defaultValue={job?.title ?? ""} placeholder="Lot Attendant" {...fieldAria("title", { error: e.title })} />
+        <Input
+          key={`title-${seedVersion}`}
+          id="title"
+          name="title"
+          value={title}
+          onChange={(evt) => setTitle(evt.target.value)}
+          placeholder="Lot Attendant"
+          {...fieldAria("title", { error: e.title })}
+        />
       </Field>
       <Field id="description" label="What does a good day look like?" hint="Short sentences. What they do, who they work with, what success looks like." error={e.description}>
         <Textarea id="description" name="description" rows={4} defaultValue={job?.description ?? ""} {...fieldAria("description", { hint: true, error: e.description })} />
       </Field>
       <div>
-        <ChipPicker name="abilities_required" label="Abilities this job needs" description="Pick the real ones. Candidates are matched on these." suggestions={ABILITY_SUGGESTIONS} initial={job?.abilities_required ?? []} />
+        <ChipPicker
+          key={`abilities-${seedVersion}`}
+          name="abilities_required"
+          label="Abilities this job needs"
+          description="Pick the real ones. Candidates are matched on these."
+          suggestions={ABILITY_SUGGESTIONS}
+          initial={abilitiesSeed}
+        />
         {e.abilities_required && (
           <p role="alert" className="mt-2 text-sm font-bold text-destructive">
             {e.abilities_required}
           </p>
         )}
       </div>
-      <ChipPicker name="accommodations_offered" label="Accommodations you can provide" suggestions={ACCOMMODATION_SUGGESTIONS} initial={job?.accommodations_offered ?? defaults.accommodations_offered} />
+      <ChipPicker
+        key={`accommodations-${seedVersion}`}
+        name="accommodations_offered"
+        label="Accommodations you can provide"
+        suggestions={ACCOMMODATION_SUGGESTIONS}
+        initial={accommodationsSeed}
+      />
       <ChipPicker name="availability" label="Shifts" suggestions={AVAILABILITY_OPTIONS} initial={job?.availability ?? []} />
       <div className="grid gap-4 sm:grid-cols-3">
         <Field id="city" label="City" error={e.city}>
